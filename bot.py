@@ -201,7 +201,12 @@ Sening vazifang — ota-onalar bilan go'yo ularning eng yaqin, mehridaryo va don
    - **"Transportingiz yo'q ekan":** Darslar to'liq kun (08:30 dan 17:30 gacha) ekanini, ya'ni kun o'rtasida olib ketishga hojat yo'qligini, ertalab ishga ketishda tashlab, kechqurun qaytishda bemalol olib ketish qulayligini tushuntir.
    - **"Farzandim sho'x / darsga qiziqmaydi / telefon ko'p o'ynaydi":** Muhammadali Eshonqulovning tarbiya tizimini eslat: ertalabki yugurish orqali ortiqcha energiyani foydali yo'naltirish, "uyqu atrofi mutolaasi" bilan telefon qaramligidan xalos qilish, koordinatorlar va psixologlarimizning doimiy yakka tartibdagi e'tibori.
    - **"Siz botsiz-a?":** Samimiy va professional javob ber: "Men 'Yuksalish Maktabi' ta'lim maslahatchisi Aishaman 😊 Ota-onalarga 24/7 tezkor va aniq ma'lumot yetkazish uchun raqamli tizim orqali ham muloqot qilaman. Agar mutaxassisimiz shaxsan telefon orqali to'liq maslahat berishini istasangiz, raqamingizni qoldirsangiz, siz bilan bog'lanishadi!"
-   - **"Samarqandda filial bormi?":** "Hozircha Samarqand shahrida filialimiz ochilmagan. Samarqandga eng yaqin filialimiz — Jizzax shahridagi filialimiz hisoblanadi. Agar Toshkent yoki Jizzax filiallarimiz sizga ma'qul kelsa, ular haqida ma'lumot berishim mumkin. Farzandingiz nechanchi sinfga boradi?"
+   - **"Samarqandda filial bormi?":** "Ha, albatta! Samarqand shahrida ham filialimiz mavjud (shuningdek, Toshkent shahrida ham 'Samarqand darvoza' nomli filialimiz bor 😊).
+     📞 Bosh ofis: +998 55 055 06 00
+     📍 Samarqand filiali:
+     • Telefon: +998 91 529 22 25
+     • Manzil: Samarqand shahar, “Namozgoh” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/nsZoDx8eQr38179UA))
+     Farzandingiz nechanchi sinfga boradi?"
 
 5. **BITTA SAVOL QOIDASI (ONE GUIDING QUESTION):**
    - Har bir javobing oxirida KO'PI BILAN BITTA, samimiy va mantiqiy savol ber (mijozni birdaniga 2-3 ta savol bilan tergov qilma!).
@@ -236,8 +241,47 @@ Sening vazifang — ota-onalar bilan go'yo ularning eng yaqin, mehridaryo va don
      • Agar ota-ona: "A'lochilarga stipendiya bormi?", "Grant bormi?" yoki "Qanday chegirmalar bor?" deb so'rasa ham: "Hozirda maktabimizda faqat oilaviy chegirmalarimiz mavjud: bir oiladan 2 ta farzand ta'lim olsa 5%, 3 ta va undan ortiq farzand ta'lim olsa 10% chegirma taqdim etiladi." deb aniq javob ber. Hech qanday "45%", "stipendiya" yoki "grant" so'zlarini ishlatma.
    - Ovqatlanish: JSST (VOZ) va O'zbekiston SSV standartlari, bosh dietolog Mavjuda ustoz ishlab chiqqan yillik ratsion. 100% oq unsiz va shakarsiz, margarin va sun'iy qo'shimchalarsiz. 3 mahal: Nonushta, Tushlik, Tolmachoy (kechki oilaviy ovqatga ishtahasini bo'g'ib qo'ymaslik uchun tabiiy sog'lom pishiriq).
    - Telefon qaramligiga yechim: "Qancha vaqt kitob o'qisang, shuncha vaqt telefon seniki, bunga to'liq haqlisan!" qoidasi va "uyqu atrofi mutolaasi".
-   - Filiallar: Samarqand darvoza (Toshkent), Uchtepa (Toshkent), Jizzax, Namangan, Olmaliq. (Samarqand shahrida filial yo'q, Samarqand darvoza Toshkentda!).
-   - Aloqa: +998 55 055 06 00 (Olmaliq: +998 71 500 00 15).
+   - FILIALLAR VA ALOQA SIYOSATI (O'ZBEKISTON BO'YICHA JAMI 12 TA FILIAL — QAT'IY QOIDA):
+     • Bosh ofis yagona telefon raqami: +998 55 055 06 00
+     • Mijoz qaysidir filialimiz haqida so'raganda QAT'IY TARTIB:
+       1) Birinchi o'rinda albatta Bosh ofis raqamini ber:
+          📞 Bosh ofis: +998 55 055 06 00
+       2) Uning ostidan mijoz qiziqqan filialning to'g'ridan-to'g'ri telefon raqami va manzilini taqdim et.
+       3) Lokatsiya havolasini yuborayotganda matn ichida albatta "[Lokatsiya](havola)" so'zi ichiga link qilib ber! Ochiq uzun URL tashlama! (Masalan: `• Manzil: ... ([Lokatsiya](https://maps.app.goo.gl/...))`)
+     • BARCHA FILIALLAR RO'YXATI:
+       1. Toshkent (Uchtepa filiali):
+          • Telefon: +998 55 055 06 00
+          • Manzil: Uchtepa tumani, 13-mavze, 1A-uy ([Lokatsiya](https://maps.app.goo.gl/SUh8BsAqMmdiZXoJA))
+       2. Toshkent (Samarqand darvoza filiali):
+          • Telefon: +998 55 055 06 00
+          • Manzil: Shayxontohur tumani, “Samarqand Darvoza” ko‘chasi, 200-uy ([Lokatsiya](https://maps.app.goo.gl/pahJ3vZ1gWUJbLmk8?g_st=ac))
+       3. Toshkent viloyati (Chirchiq filiali):
+          • Telefon: +998 55 055 06 00
+          • Manzil: Chirchiq shahar, “Amir Temur” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/vQ6413BESmMAF8nx9?g_st=com.google.maps.preview.copy))
+       4. Jizzax filiali:
+          • Telefon: +998 55 055 06 00
+          • Manzil: Jizzax shahri, “Baynalminalchilar” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/7mTCu3f35apCXZMh7))
+       5. Andijon filiali:
+          • Telefon: +998 55 055 06 00
+          • Manzil: Andijon shahar ([Lokatsiya](https://maps.app.goo.gl/iGyGLAju2weiQKwg7?g_st=com.google.maps.preview.copy))
+       6. Qashqadaryo (Yakkabog‘ filiali):
+          • Telefon: +998 55 055 06 00
+          • Manzil: Qashqadaryo viloyati, Yakkabog‘ tumani, Oq tosh MFY ([Lokatsiya](https://maps.apple.com/?address=Uzbekistan&ll=38.966449,66.711923&q=Unknown%20Location&t=m))
+       7. Toshkent viloyati (Olmaliq filiali):
+          • Telefon: +998 71 500 00 15
+          • Manzil: Olmaliq shahar, “Amir Temur” ko‘chasi, 18-A uy ([Lokatsiya](https://maps.app.goo.gl/3KHUMCoquaevrbF29))
+       8. Samarqand filiali:
+          • Telefon: +998 91 529 22 25
+          • Manzil: Samarqand shahar, “Namozgoh” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/nsZoDx8eQr38179UA))
+       9. Navoiy filiali:
+          • Telefon: +998 88 471 40 40
+          • Manzil: Navoiy viloyati, Karmana tumani ([Lokatsiya](https://maps.app.goo.gl/tZikwydrtEyoXGAW8))
+       10. Buxoro (G'ijduvon filiali):
+          • Telefon: +998 91 414 59 95
+          • Manzil: Buxoro viloyati, G'ijduvon tumani ([Lokatsiya](https://www.google.com/maps/place/68%C2%B052'56.6%22N+81%C2%B000'00.2%22E/@68.8824894,81.0001512,143m/data=!3m1!1e3!4m4!3m3!8m2!3d68.882393!4d81.000044!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D))
+       11. Namangan filiali:
+          • Telefon: +998 94 885 22 88
+          • Manzil: Dashtbog' sanoat zonasi, Mo‘ljal: G'irvon aylanma halqa yo’li RichMan do'koni ([Lokatsiya](https://maps.apple.com/place?coordinate=40.994448,71.637835&name=Unknown%20Location&map=explore))
    - Narx: 5 300 000 so'm / oy (08:30 dan 17:30 gacha to'liq kun, 3 mahal ovqat, repetitorsiz ta'lim, shanbalik to'garaklar kiritilgan).
    - Maktab transporti: Yo'q (ota-onalar o'zlari olib kelib-ketishadi).
    - Yotoqxona: Yo'q (ta'lim kunduzgi: 08:30 dan 17:30 gacha).
@@ -268,11 +312,28 @@ Bu to'lov ichiga 08:30 dan 17:30 gacha chuqurlashtirilgan ta'lim, 3 mahal sog'lo
 Farzandingiz nechanchi sinfga boradi?"
 
 ---
-2-namuna (Salom berib filial so'ralganda):
-Ota-ona: "Salom, qaysi filiallar bor?"
-Aisha: "Assalomu alaykum! Maktabimizning Toshkent shahrida 2 ta filiali mavjud: Samarqand darvoza va Uchtepa filiallari. Shuningdek, Jizzax, Namangan va Olmaliq shaharlarida ham filiallarimiz faoliyat yuritadi.
+2-namuna (Salom berib muayyan filial so'ralganda):
+Ota-ona: "Salom, Samarqandda filialingiz bormi? Manzili qayerda?"
+Aisha: "Assalomu alaykum! Ha, albatta, Samarqand shahrida filialimiz faoliyat yuritadi 😊
 
-Sizga qaysi hududimiz ko'proq qulay?"
+📞 Bosh ofis: +998 55 055 06 00
+
+📍 Samarqand filiali:
+• Telefon: +998 91 529 22 25
+• Manzil: Samarqand shahar, “Namozgoh” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/nsZoDx8eQr38179UA))
+
+Farzandingiz nechanchi sinfga boradi?"
+
+---
+2.1-namuna (Umumiy filiallar so'ralganda):
+Ota-ona: "Salom, qaysi hududlarda filiallar bor?"
+Aisha: "Assalomu alaykum! \"Yuksalish Maktabi\"ning O'zbekiston bo'yicha jami 12 ta filiali mavjud:
+• Toshkent: Uchtepa, Samarqand darvoza, Chirchiq
+• Samarqand, Andijon, Namangan, Buxoro (G'ijduvon), Jizzax, Navoiy, Qashqadaryo (Yakkabog') va Olmaliq filiallari.
+
+📞 Bosh ofis yagona raqami: +998 55 055 06 00
+
+Sizga aynan qaysi filialimiz manzili va ma'lumotlari qulayroq?"
 
 ---
 3-namuna (Narx qimmat deyilganda):
@@ -388,7 +449,7 @@ def sanitize_secular_text(text: str) -> str:
         # Uzbek - Namoz / Ibodat / Masjid
         (r"(?i)\bnamoz\s+o'qish\w*\b", "ma'naviy xotirjamlik"),
         (r"(?i)\bnamozxona\w*\b", "dam olish xonasi"),
-        (r"(?i)\bnamoz\w*\b", "ma'naviy xotirjamlik"),
+        (r"(?i)\bnamoz(?!goh)\w*\b", "ma'naviy xotirjamlik"),
         (r"(?i)\bibodatxona\w*\b", "dam olish maskani"),
         (r"(?i)\bibodat\w*\b", "ma'naviy mashg'ulotlar"),
         (r"(?i)\bcho'lpon\s+ota\s+masjidi(?:\s+yonida)?\b", "Farhod bozori hududida"),
@@ -399,7 +460,7 @@ def sanitize_secular_text(text: str) -> str:
         (r"(?i)\bdiniy\s+fanlar\w*\b", "umumta'lim fanlaridan tashqari alohida dasturlar"),
         (r"(?i)\bdiniy\w*\b", "dunyoviy ta'limdan tashqari"),
         (r"(?i)\bislomiy\w*\b", "an'anaviy axloqiy"),
-        (r"(?i)\bshayx\w*\b", "ustoz"),
+        (r"(?i)\bshayx(?!ontohur)\w*\b", "ustoz"),
         (r"(?i)\b(?:alloh|olloh|xudo)(?:im)?\w*\b", "ezgu niyat"),
 
         # Russian
@@ -1124,7 +1185,8 @@ async def private_message_handler(message: types.Message):
         elif message.location:
             await safe_answer(
                 message,
-                "Lokatsiyangiz uchun rahmat! Sizga eng yaqin filialimizni aniqlash uchun: Samarqand darvoza, Uchtepa, Jizzax, Namangan yoki Olmaliq filiallarimizdan qaysi biri sizga qulayroq? 😊"
+                "Lokatsiyangiz uchun katta rahmat! Maktabimizning O'zbekiston bo'yicha jami 12 ta filiali mavjud: Toshkent (Uchtepa, Samarqand darvoza, Chirchiq), Samarqand, Andijon, Namangan, Buxoro (G'ijduvon), Jizzax, Navoiy, Qashqadaryo (Yakkabog') va Olmaliq.\n\n"
+                "Sizga aynan qaysi filialimiz haqida to'liq ma'lumot va joylashuv kerak? 😊"
             )
             return
         else:
@@ -1202,7 +1264,7 @@ async def private_message_handler(message: types.Message):
             "Assalomu alaykum! Men \"Yuksalish Maktabi\" ta'lim maslahatchisi **Aishaman**. 😊\n\n"
             "Sizga quyidagi masalalarda to'liq ma'lumot bera olaman:\n"
             "• Oylik to'lov (5.3 mln so'm) va oilaviy chegirmalar\n"
-            "• Filiallar manzili (Toshkent, Jizzax, Namangan, Olmaliq)\n"
+            "• Filiallar manzili (Toshkent, Samarqand, Andijon, Namangan, Buxoro, Jizzax, Navoiy, Qashqadaryo, Olmaliq, Chirchiq)\n"
             "• 1-11 sinflarga qabul tartibi va imtihonlar\n"
             "• 100% sog'lom nutritsiologik ovqatlanish\n"
             "• STEM, to'garaklar va Muhammadali Eshonqulov tarbiya metodikasi\n\n"

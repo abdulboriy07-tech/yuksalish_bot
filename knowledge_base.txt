@@ -37,13 +37,46 @@
   9. Reyting va rag'batlantirish tizimi (o'quvchilarning intellektual va axloqiy o'sishini qo'llab-quvvatlash).
   10. "Eng yaxshi sinf" statuetkasi: Jamoaviy ahillik va bir-birini qo'llab-quvvatlash ruhi.
 
-• FILIALLAR VA INFRATUZILMA:
-  1. Samarqand darvoza filiali: Toshkent sh., Shayxontohur tumani, 46-poliklinika orqasida.
-  2. Uchtepa filiali: Toshkent sh., Uchtepa tumani, Farhod bozoridan o'tganda (Farhod bozori hududida, 9-sinfgacha).
-  3. Jizzax filiali: Jizzax shahar markazida (Samarqandga eng yaqin filial).
-  4. Namangan filiali: Namangan shahar markazida.
-  5. Olmaliq filiali: Olmaliq sh., Amir Temur ko'chasi, 18-A uy.
-  • Aloqa: +998 55 055 06 00 (Olmaliq: +998 71 500 00 15).
+• FILIALLAR VA INFRATUZILMA (O'ZBEKISTON BO'YICHA JAMI 12 TA FILIAL):
+  - Bosh ofis yagona aloqa raqami: +998 55 055 06 00
+  - Filiallar haqida ma'lumot berish qoidasi:
+    1. Birinchi o'rinda Bosh ofis raqami beriladi: 📞 Bosh ofis: +998 55 055 06 00
+    2. Ostidan mijoz qiziqqan filialning to'g'ridan-to'g'ri telefon raqami va manzili beriladi.
+    3. Lokatsiya havolasi albatta "[Lokatsiya](havola)" ko'rinishida yuboriladi!
+
+  1. Toshkent (Uchtepa filiali):
+     • Telefon: +998 55 055 06 00
+     • Manzil: Uchtepa tumani, 13-mavze, 1A-uy ([Lokatsiya](https://maps.app.goo.gl/SUh8BsAqMmdiZXoJA))
+  2. Toshkent (Samarqand darvoza filiali):
+     • Telefon: +998 55 055 06 00
+     • Manzil: Shayxontohur tumani, “Samarqand Darvoza” ko‘chasi, 200-uy ([Lokatsiya](https://maps.app.goo.gl/pahJ3vZ1gWUJbLmk8?g_st=ac))
+  3. Toshkent viloyati (Chirchiq filiali):
+     • Telefon: +998 55 055 06 00
+     • Manzil: Chirchiq shahar, “Amir Temur” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/vQ6413BESmMAF8nx9?g_st=com.google.maps.preview.copy))
+  4. Jizzax filiali:
+     • Telefon: +998 55 055 06 00
+     • Manzil: Jizzax shahri, “Baynalminalchilar” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/7mTCu3f35apCXZMh7))
+  5. Andijon filiali:
+     • Telefon: +998 55 055 06 00
+     • Manzil: Andijon shahar ([Lokatsiya](https://maps.app.goo.gl/iGyGLAju2weiQKwg7?g_st=com.google.maps.preview.copy))
+  6. Qashqadaryo (Yakkabog‘ filiali):
+     • Telefon: +998 55 055 06 00
+     • Manzil: Qashqadaryo viloyati, Yakkabog‘ tumani, Oq tosh MFY ([Lokatsiya](https://maps.apple.com/?address=Uzbekistan&ll=38.966449,66.711923&q=Unknown%20Location&t=m))
+  7. Toshkent viloyati (Olmaliq filiali):
+     • Telefon: +998 71 500 00 15
+     • Manzil: Olmaliq shahar, “Amir Temur” ko‘chasi, 18-A uy ([Lokatsiya](https://maps.app.goo.gl/3KHUMCoquaevrbF29))
+  8. Samarqand filiali:
+     • Telefon: +998 91 529 22 25
+     • Manzil: Samarqand shahar, “Namozgoh” ko‘chasi ([Lokatsiya](https://maps.app.goo.gl/nsZoDx8eQr38179UA))
+  9. Navoiy filiali:
+     • Telefon: +998 88 471 40 40
+     • Manzil: Navoiy viloyati, Karmana tumani ([Lokatsiya](https://maps.app.goo.gl/tZikwydrtEyoXGAW8))
+  10. Buxoro (G'ijduvon filiali):
+     • Telefon: +998 91 414 59 95
+     • Manzil: Buxoro viloyati, G'ijduvon tumani ([Lokatsiya](https://www.google.com/maps/place/68%C2%B052'56.6%22N+81%C2%B000'00.2%22E/@68.8824894,81.0001512,143m/data=!3m1!1e3!4m4!3m3!8m2!3d68.882393!4d81.000044!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkyMy4wIKXMDSoASAFQAw%3D%3D))
+  11. Namangan filiali:
+     • Telefon: +998 94 885 22 88
+     • Manzil: Dashtbog' sanoat zonasi, Mo‘ljal: G'irvon aylanma halqa yo’li RichMan do'koni ([Lokatsiya](https://maps.apple.com/place?coordinate=40.994448,71.637835&name=Unknown%20Location&map=explore))
 
 • KUN TARTIBI VA SHAROITLAR:
   - 5 kunlik o'quv haftasi (Dushanba - Juma, 08:30 dan 17:30 gacha).
