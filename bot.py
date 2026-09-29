@@ -437,12 +437,28 @@ async def private_message_handler(message: types.Message):
         genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)])
     )
 
-    await safe_answer(message, reply)
+from aiohttp import web
+
+async def handle_ping(request):
+    return web.Response(text="Aisha bot is online 24/7!")
+
+async def start_web_server():
+    """Render va boshqa bulutli xizmatlar uchun portni tinglovchi veb-server"""
+    port = int(os.getenv("PORT", 10000))
+    app = web.Application()
+    app.router.add_get("/", handle_ping)
+    app.router.add_get("/health", handle_ping)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logging.info(f"Healthcheck server {port}-portda ishga tushdi")
 
 
 async def main():
     bot_info = await bot.get_me()
     print(f"Bot muvaffaqiyatli ishga tushdi: @{bot_info.username} ({bot_info.first_name})")
+    await start_web_server()
     await dp.start_polling(bot)
 
 

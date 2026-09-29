@@ -1,5 +1,5 @@
 services:
-  - type: worker
+  - type: web
     name: yuksalish-aisha-bot
     env: python
     region: frankfurt
