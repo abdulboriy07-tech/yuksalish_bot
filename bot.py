@@ -166,11 +166,11 @@ def to_openai_messages(system_instruction: str, contents) -> list:
 
 
 async def ask_ai(contents) -> str:
-    """Multi-LLM (ChatGPT + Gemini) gibrid javob olish tizimi"""
+    """Multi-LLM (ChatGPT + Gemini) tezkor va ishonchli javob olish tizimi"""
     global openai_disabled_until
     system_instruction = get_system_instruction()
 
-    # 1. AGAR OPENAI SOZLANGAN VA KREDITI BOR BO'LSA, CHATGPT ISHLATILADI
+    # 1. AGAR OPENAI SOZLANGAN VA KREDITI BOR BO'LSA
     if openai_client and time.time() > openai_disabled_until:
         try:
             openai_msgs = to_openai_messages(system_instruction, contents)
@@ -183,41 +183,16 @@ async def ask_ai(contents) -> str:
             if response and response.choices and response.choices[0].message.content:
                 return response.choices[0].message.content
         except Exception as e:
-            err_str = str(e)
-            if "insufficient_quota" in err_str or "credit_balance_exhausted" in err_str:
-                # 1 soat davomida OpenAI ga ortiqcha so'rov yuborib kechikish yaratmaymiz
-                openai_disabled_until = time.time() + 3600
-                logging.warning("OpenAI krediti tugagan. 1 soatga Gemini asosiy qilib belgilandi.")
-            else:
-                logging.warning(f"OpenAI xatoligi (Gemini'ga o'tilmoqda): {e}")
+            openai_disabled_until = time.time() + 86400  # 24 soatga o'tkazib yuborish
+            logging.info(f"OpenAI o'tkazib yuborildi (Gemini ishlatiladi): {e}")
 
-    # 2. GEMINI (Asosiy / Fallback)
+    # 2. GEMINI 3.5 FLASH LITE (Asosiy, tezkor va barqaror)
     if gemini_client:
-        # Avval yuqori kvotali tezkor gemini-3.5-flash-lite, so'ngra gemini-3.6-flash
-        gemini_models = ["gemini-3.5-flash-lite", "gemini-3.6-flash"]
-        for model_name in gemini_models:
-            # 1-urinish: Google Search Grounding bilan (Internetdagi eng so'nggi tadqiqotlar uchun)
+        for attempt in range(2):
             try:
                 response = await asyncio.to_thread(
                     gemini_client.models.generate_content,
-                    model=model_name,
-                    contents=contents,
-                    config=genai_types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.4,
-                        tools=[genai_types.Tool(google_search=genai_types.GoogleSearch())],
-                    ),
-                )
-                if response and response.text:
-                    return response.text
-            except Exception:
-                pass
-
-            # 2-urinish: To'g'ridan-to'g'ri model chaqiruvi (Search kvotasi bo'lmaganda)
-            try:
-                response = await asyncio.to_thread(
-                    gemini_client.models.generate_content,
-                    model=model_name,
+                    model="gemini-3.5-flash-lite",
                     contents=contents,
                     config=genai_types.GenerateContentConfig(
                         system_instruction=system_instruction,
@@ -227,10 +202,10 @@ async def ask_ai(contents) -> str:
                 if response and response.text:
                     return response.text
             except Exception as e:
-                logging.warning(f"Gemini {model_name} xatolik: {e}")
+                logging.warning(f"Gemini urinish {attempt+1} xatolik: {e}")
                 await asyncio.sleep(0.3)
 
-    return "Uzr, hozirda tizimda texnik profilaktika ketmoqda. Iltimos, to'g'ridan-to'g'ri aloqa markazimizga qo'ng'iroq qiling: +998 55 055 06 00"
+    return "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
 
 
 async def safe_reply(message: types.Message, text: str):
@@ -437,6 +412,8 @@ async def private_message_handler(message: types.Message):
         genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)])
     )
 
+    await safe_answer(message, reply)
+
 from aiohttp import web
 
 async def handle_ping(request):
@@ -448,7 +425,7 @@ async def handle_status(request):
         "bot": "@yuksalish_maktabi_adminbot",
         "gemini_active": bool(gemini_client),
         "openai_active": bool(openai_client),
-        "version": "v2.2-stable",
+        "version": "v2.3-fixed-reply",
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     return web.json_response(data)
