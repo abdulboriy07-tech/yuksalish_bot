@@ -226,16 +226,31 @@ Sening vazifang — ota-onalar bilan go'yo ularning eng yaqin, mehridaryo va don
 
 10. **ANIK FAKTLAR VA BAZA (MUHAMMADALI ESHONQULOV VA MAKTAB METODIKASI):**
    - Asoschi: Muhammadali Eshonqulov. Shior: "100 yilda bir keladigan buyuk inson sizsiz!".
-   - Maqsad: Bolaning ichidagi noyob qobiliyat (gavhar)ni ochish va ota-onaga, xalqiga manfaat keltiradigan buyuk shaxsiyat qilish. Farzandni mustaqil hayotga ("ota-onasizlikka") tayyorlash.
+   - Maqsad: Bolaning ichidagi tabiiy tug'ma qobiliyat (gavhar)ni ochish va ota-onaga, xalqiga manfaat keltiradigan buyuk shaxsiyat qilish. Farzandni mustaqil hayotga ("ota-onasizlikka", ya'ni mustaqil oyoqqa turishga) tayyorlash.
    - Nega ta'lim o'zbek tilida: Mustafo Cho'qay hikmati — "Inson ta'limni qaysi tilda olsa, o'sha til sohibi bo'lgan davlatga butun umr xizmat qiladi". Vatanparvar va millat manfaatini o'ylaydigan liderlarni tarbiyalash. Ilmni original manbasidan o'qish uchun esa ingliz, rus, koreys va arab tillari chuqurlashtiriladi.
    - Natijalar va IELTS: O'quvchilar repetitorsiz 7-9 sinfda IELTS 7.5-8.5 va SAT 1400-1500+ ballar olmoqda. 9-sinf oxirigacha bola IELTS masalasini yopishi shart (minimum 6.5-7.0), shunda 10-11 sinfda faqat xalqaro universitetlar grantlari ustida ishlaydi. 10-11 sinf a'lochilariga 50% gacha to'lov chegirmasi beriladi. Iqtidorli yoshlarga Muhammadali Eshonqulov nomidagi 100% grantlar bor.
    - Ovqatlanish: JSST (VOZ) va O'zbekiston SSV standartlari, bosh dietolog Mavjuda ustoz ishlab chiqqan yillik ratsion. 100% oq unsiz va shakarsiz, margarin va sun'iy qo'shimchalarsiz. 3 mahal: Nonushta, Tushlik, Tolmachoy (kechki oilaviy ovqatga ishtahasini bo'g'ib qo'ymaslik uchun tabiiy sog'lom pishiriq).
-   - Telefon qaramligiga yechim: "Qancha vaqt kitob o'qisang, shuncha vaqt telefon seniki, halol bo'lsin!" qoidasi va "uyqu atrofi mutolaasi".
+   - Telefon qaramligiga yechim: "Qancha vaqt kitob o'qisang, shuncha vaqt telefon seniki, bunga to'liq haqlisan!" qoidasi va "uyqu atrofi mutolaasi".
    - Filiallar: Samarqand darvoza (Toshkent), Uchtepa (Toshkent), Jizzax, Namangan, Olmaliq. (Samarqand shahrida filial yo'q, Samarqand darvoza Toshkentda!).
    - Aloqa: +998 55 055 06 00 (Olmaliq: +998 71 500 00 15).
    - Narx: 5 300 000 so'm / oy (08:30 dan 17:30 gacha to'liq kun, 3 mahal ovqat, repetitorsiz ta'lim, shanbalik to'garaklar kiritilgan).
    - Maktab transporti: Yo'q (ota-onalar o'zlari olib kelib-ketishadi).
    - Yotoqxona: Yo'q (ta'lim kunduzgi: 08:30 dan 17:30 gacha).
+
+11. **🚫 DINIY ATAMALAR VA SO'ZLARNI ISHLATISH QAT'IYAN TAQIQLANADI (100% DUNYOVIY TA'LIM STANDARTI):**
+   - Muloqotda HECH QANDAY diniy tushunchalar, atamalar yoki diniy so'zlar ishlatilmasin!
+   - MUTLAQO TAQIQLANGAN SO'ZLAR: "Alloh", "Xudo", "Inshaalloh", "Mashaalloh", "Subhonalloh", "Alhamdulillah", "duo", "ehson", "halol", "harom", "savob", "gunoh", "hadis", "oyat", "namoz", "masjid", "islomiy", "diniy", "shayx", "ibodat".
+   - Maktabimiz — O'zbekiston Respublikasi Maktabgacha va maktab ta'limi vazirligi litsenziyasiga ega bo'lgan ZAMONAVIY DUNYOVIY TA'LIM MUASSASASIDIR.
+   - Barcha tushunchalar mutlaqo DUNYOVIY, ILMIY, PEDAGOGIK, HUQUQIY va INSONPARVARLIK nuqtayi nazaridan bayon qilinishi shart:
+     • "Alloh bergan iqtidor" EMAS -> "tabiiy tug'ma salohiyat va qobiliyat";
+     • "Alloh ko'rib turibdi" EMAS -> "yuksak vijdon, shaxsiy mas'uliyat va to'g'riso'zlik";
+     • "duo olish" EMAS -> "ota-ona roziligi, mehri va oq fotihasini olish";
+     • "ehson" EMAS -> "saxovat, mehr-oqibat, ko'ngillilik (volontyorlik) va ijtimoiy ko'mak";
+     • "halol bo'lsin" EMAS -> "marhamat, sen bunga to'liq haqlisan / o'z mehnating bilan erishding".
+   - AGAR OTA-ONA DINIY TA'LIM, NAMOZ YOKI SHARIAT HAQIDA SO'RASA:
+     • "Maktabimiz — O'zbekiston Respublikasi Maktabgacha va maktab ta'limi vazirligi litsenziyasiga ega bo'lgan zamonaviy dunyoviy ta'lim muassasasi hisoblanadi. O'quv dasturimiz davlat ta'lim standartlari, zamonaviy fanlar, chet tillari va STEM yo'nalishlariga asoslangan bo'lib, o'quvchilarda yuksak insoniy fazilatlar, vatanparvarlik, qat'iyat va intizomni shakllantirishga qaratilgan." deb samimiy va muloyim javob ber.
+     • Javobingda diniy atamalarni (namoz, diniy, ibodat kabilarni) hatto inkor shaklida ham aslo takrorlama!
+
 
 ### 💬 JONLI MULOQOT NAMUNALARI (FEW-SHOT):
 ---
@@ -317,6 +332,94 @@ def to_openai_messages(system_instruction: str, contents) -> list:
     return messages
 
 
+def sanitize_secular_text(text: str) -> str:
+    """Mijoz bilan yozishmalardan barcha diniy so'z va atamalarni 100% dunyoviy muqobillariga almashtirish"""
+    if not text:
+        return text
+
+    phrases = [
+        # Uzbek - Alloh bergan / ko'rib turibdi
+        (r"(?i)\b(?:alloh|olloh|xudo)(?:im)?\s+bergan\s+(?:noyob\s+)?iqtidor\w*\b", "tabiiy tug'ma iqtidor"),
+        (r"(?i)\b(?:alloh|olloh|xudo)(?:im)?\s+bergan\s+(?:noyob\s+)?qobiliyat\w*\b", "tabiiy tug'ma qobiliyat"),
+        (r"(?i)\b(?:alloh|olloh|xudo)(?:im)?\s+ko'rib\s+turibdi\b", "yuksak vijdon, shaxsiy mas'uliyat va to'g'riso'zlik"),
+        (r"(?i)\b(?:alloh|olloh)\s+rozi\s+bo'lsin\b", "Katta rahmat, minnatdormiz"),
+        (r"(?i)\b(?:allohga|ollohga|xudoga)\s+shuk[ru]?\b", "Ming bor shukr"),
+        
+        # Uzbek - Duo
+        (r"(?i)\bduo(?:lar)?\s+(?:olish\w*|olamiz|olishadi|olinsa)\b", "ota-ona roziligi va mehrini olish"),
+        (r"(?i)\bduosini\s+olish\w*\b", "roziligini va mehrini olish"),
+        (r"(?i)\bduo(?:lar)?\s+(?:qilish\w*|qilamiz|qilaylik|qilinsin)\b", "ezgu tilaklar bildirish"),
+        (r"(?i)\bduo\s+qil\w*\b", "ezgu tilak bildir"),
+        (r"(?i)\bduolar(?:imiz)?\b", "ezgu tilaklarimiz"),
+        (r"(?i)\bduo\b", "ezgu tilak"),
+
+        # Uzbek - Ehson
+        (r"(?i)\behson\s+qutisi\b", "saxovat va mehr-oqibat qutisi"),
+        (r"(?i)\behson\s+(?:qilish\w*|qilamiz|qilinadi)\b", "saxovat ko'rsatish va ko'ngillilik"),
+        (r"(?i)\behson\w*\b", "saxovat va ko'mak"),
+
+        # Uzbek - Halol / Harom
+        (r"(?i)\bhalol\s+bo'lsin\b", "bunga to'liq haqlisan"),
+        (r"(?i)\bhalol\s+va\s+toza\b", "sifatli, toza va xavfsiz"),
+        (r"(?i)\bhalol\s+ovqat\w*\b", "sertifikatlangan toza va sog'lom ovqat"),
+        (r"(?i)\bhalol\s+mahsulot\w*\b", "sifatli, toza mahsulot"),
+        (r"(?i)\bhalol\s+mehnat\w*\b", "vijdonli, sidqidildan mehnat"),
+        (r"(?i)\bhalol\w*\b", "toza, tabiiy va sifatli"),
+        (r"(?i)\bharom\w*\b", "taqiqlangan va nomaqbul"),
+
+        # Uzbek - Zikr / Ibora
+        (r"(?i)\b(?:inshaalloh|insha\s+alloh|inshoolloh|in\s+sha\s+allah|xudo\s+xohlasa|xudo\s+buyursa)\b", "albatta"),
+        (r"(?i)\b(?:mashaalloh|masha\s+alloh|mashalloh|mashaallah)\b", "ofarin"),
+        (r"(?i)\b(?:subhonalloh|subhanallah)\b", "ajoyib"),
+        (r"(?i)\b(?:alhamdulillah|alhamdullillah)\b", "shukronalik bilan"),
+
+        # Uzbek - Savob / Gunoh / Hadis / Oyat
+        (r"(?i)\bsavob\s+ish\w*\b", "ezgu va xayrli ish"),
+        (r"(?i)\bsavob\w*\b", "ezgu va xayrli"),
+        (r"(?i)\bgunoh\w*\b", "xato va noto'g'ri ish"),
+        (r"(?i)\bhadis\w*\b", "hikmatli so'zlar"),
+        (r"(?i)\boyat\w*\b", "ibratli hikmatlar"),
+
+        # Uzbek - Namoz / Ibodat / Masjid
+        (r"(?i)\bnamoz\s+o'qish\w*\b", "ma'naviy xotirjamlik"),
+        (r"(?i)\bnamozxona\w*\b", "dam olish xonasi"),
+        (r"(?i)\bnamoz\w*\b", "ma'naviy xotirjamlik"),
+        (r"(?i)\bibodatxona\w*\b", "dam olish maskani"),
+        (r"(?i)\bibodat\w*\b", "ma'naviy mashg'ulotlar"),
+        (r"(?i)\bcho'lpon\s+ota\s+masjidi(?:\s+yonida)?\b", "Farhod bozori hududida"),
+        (r"(?i)\bmasjid\w*\b", "hudud"),
+
+        # Uzbek - Diniy / Islomiy / Shayx
+        (r"(?i)\bdiniy\s+ta'lim\b", "dunyoviy ta'lim dasturlaridan tashqari maxsus ta'lim"),
+        (r"(?i)\bdiniy\s+fanlar\w*\b", "umumta'lim fanlaridan tashqari alohida dasturlar"),
+        (r"(?i)\bdiniy\w*\b", "dunyoviy ta'limdan tashqari"),
+        (r"(?i)\bislomiy\w*\b", "an'anaviy axloqiy"),
+        (r"(?i)\bshayx\w*\b", "ustoz"),
+        (r"(?i)\b(?:alloh|olloh|xudo)(?:im)?\w*\b", "ezgu niyat"),
+
+        # Russian
+        (r"(?i)\b(?:иншааллах|иншаллах|иншалла)\b", "конечно"),
+        (r"(?i)\b(?:машааллах|машАллах|машалла)\b", "прекрасно"),
+        (r"(?i)\b(?:альхамдулиллях|альхамдулиллах)\b", "с благодарностью"),
+        (r"(?i)\bхаляль\w*\b", "чистая, здоровая и сертифицированная"),
+        (r"(?i)\bнамаз\w*\b", "отдых"),
+        (r"(?i)\bмечеть\w*\b", "район"),
+        (r"(?i)\bрелигиозн\w*\b", "светск"),
+        (r"(?i)\bаллах\w*\b", "добро"),
+        (r"(?i)\bбог\w*\b", "добро"),
+    ]
+
+    res = text
+    for pattern, replacement in phrases:
+        res = re.sub(pattern, replacement, res)
+
+    # Tinish belgilari va ortiqcha bo'shliqlarni tartibga keltirish
+    res = re.sub(r" +", " ", res)
+    res = re.sub(r"!+", "!", res)
+    res = re.sub(r"\n +", "\n", res)
+    return res.strip()
+
+
 # Gemini modellari uchun 503/429 cooldown monitoring
 model_cooldowns: dict[str, float] = {}
 
@@ -340,7 +443,8 @@ async def ask_ai(contents) -> str:
                 timeout=3.5
             )
             if response and response.choices and response.choices[0].message.content:
-                return response.choices[0].message.content.strip()
+                raw_answer = response.choices[0].message.content.strip()
+                return sanitize_secular_text(raw_answer)
         except Exception as e:
             openai_disabled_until = now + 86400  # 24 soatga o'tkazib yuborish
             logging.info(f"OpenAI o'tkazib yuborildi (Gemini ishlatiladi): {e}")
@@ -372,7 +476,8 @@ async def ask_ai(contents) -> str:
                     timeout=tm
                 )
                 if response and response.text:
-                    return response.text.strip()
+                    raw_answer = response.text.strip()
+                    return sanitize_secular_text(raw_answer)
             except Exception as e:
                 err_msg = str(e)
                 if "503" in err_msg or "429" in err_msg or "UNAVAILABLE" in err_msg:
@@ -381,7 +486,9 @@ async def ask_ai(contents) -> str:
                 else:
                     logging.warning(f"Model {model_name} xatolik berdi: {e}. Keyingi zaxira modelga o'tilmoqda...")
 
-    return "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
+    fallback_text = "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
+    return sanitize_secular_text(fallback_text)
+
 
 
 async def safe_reply(message: types.Message, text: str):
