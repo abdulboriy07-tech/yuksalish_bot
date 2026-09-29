@@ -440,7 +440,18 @@ async def private_message_handler(message: types.Message):
 from aiohttp import web
 
 async def handle_ping(request):
-    return web.Response(text="Aisha bot is online 24/7!")
+    return web.Response(text="Aisha bot is online 24/7! (v2.2)")
+
+async def handle_status(request):
+    data = {
+        "status": "online",
+        "bot": "@yuksalish_maktabi_adminbot",
+        "gemini_active": bool(gemini_client),
+        "openai_active": bool(openai_client),
+        "version": "v2.2-stable",
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    return web.json_response(data)
 
 async def start_web_server():
     """Render va boshqa bulutli xizmatlar uchun portni tinglovchi veb-server"""
@@ -448,6 +459,7 @@ async def start_web_server():
     app = web.Application()
     app.router.add_get("/", handle_ping)
     app.router.add_get("/health", handle_ping)
+    app.router.add_get("/status", handle_status)
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
