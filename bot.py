@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.INFO)
 
 # AI Mijozlarini yaratish
 gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
-openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+openai_client = OpenAI(api_key=OPENAI_API_KEY, max_retries=0) if OPENAI_API_KEY else None
 
 # OpenAI da kredit bo'lmasa, har safar behuda so'rov yuborib vaqt yo'qotmaslik uchun cooldown
 openai_disabled_until = 0
@@ -111,10 +111,24 @@ async def notify_admins(text: str):
             logging.warning(f"Adminga bildirishnoma yuborishda xatolik ({admin_id}): {e}")
 
 def extract_phone(text: str) -> str:
-    """Matndan telefon raqamini aniqlash"""
-    match = re.search(r'(\+?998[\s\-]?\d{2}[\s\-]?\d{3}[\s\-]?\d{2}[\s\-]?\d{2}|\b\d{9}\b)', text)
-    if match:
-        return match.group(0).replace(" ", "").replace("-", "")
+    """Matndan O'zbekiston telefon raqamini har qanday formatda aniqlash va normallashtirish"""
+    if not text:
+        return ""
+    # 1. +998 bilan yozilgan formatlar: +998 90 123 45 67, +998(90)123-45-67 va h.k.
+    m_full = re.search(r'(?:\+?998)[\s\(\)\-\.]*(\d{2})[\s\(\)\-\.]*(\d{3})[\s\(\)\-\.]*(\d{2})[\s\(\)\-\.]*(\d{2})', text)
+    if m_full:
+        return f'+998{m_full.group(1)}{m_full.group(2)}{m_full.group(3)}{m_full.group(4)}'
+    
+    # 2. 9 talik mahalliy format: 90 123 45 67, (90) 123-45-67, 93-123-45-67, 33 111 22 33
+    m_local = re.search(r'(?:\b|\()([389]\d|20|50|55|71|77|78)[\s\)\-\.]*(\d{3})[\s\-\.]*(\d{2})[\s\-\.]*(\d{2})\b', text)
+    if m_local:
+        return f'+998{m_local.group(1)}{m_local.group(2)}{m_local.group(3)}{m_local.group(4)}'
+    
+    # 3. 9 ta ketma-ket raqam: 901234567
+    m_plain = re.search(r'\b([389]\d|20|50|55|71|77|78)\d{7}\b', text)
+    if m_plain:
+        return f'+998{m_plain.group(0)}'
+        
     return ""
 
 CURRENT_KB = load_knowledge_base()
@@ -144,6 +158,14 @@ def update_user_history(user_id: int, content: genai_types.Content):
         for uid in inactive:
             user_conversations.pop(uid, None)
             user_last_active.pop(uid, None)
+
+        # Agar hali ham 200 dan ortiq bo'lsa, eng eski faol foydalanuvchilarni o'chirish (LRU cap)
+        if len(user_conversations) > 200:
+            sorted_users = sorted(user_last_active.items(), key=lambda x: x[1])
+            excess = len(user_conversations) - 200
+            for uid, _ in sorted_users[:excess]:
+                user_conversations.pop(uid, None)
+                user_last_active.pop(uid, None)
 
 def get_system_instruction() -> str:
     """Aisha — 'Yuksalish Maktabi'ning yetakchi ta'lim maslahatchisi tizimli ko'rsatmasi"""
@@ -244,13 +266,17 @@ def to_openai_messages(system_instruction: str, contents) -> list:
     return messages
 
 
+# Gemini modellari uchun 503/429 cooldown monitoring
+model_cooldowns: dict[str, float] = {}
+
 async def ask_ai(contents) -> str:
-    """Multi-LLM (ChatGPT + Gemini) tezkor, timeoutli va ishonchli javob olish tizimi"""
+    """Multi-LLM (ChatGPT + Gemini) ultra-tezkor, aqlli fallback va xatoliklarda avtomatik zaxiraga o'tish tizimi"""
     global openai_disabled_until
+    now = time.time()
     system_instruction = get_system_instruction()
 
     # 1. AGAR OPENAI SOZLANGAN VA KREDITI BOR BO'LSA
-    if openai_client and time.time() > openai_disabled_until:
+    if openai_client and now > openai_disabled_until:
         try:
             openai_msgs = to_openai_messages(system_instruction, contents)
             response = await asyncio.wait_for(
@@ -260,18 +286,26 @@ async def ask_ai(contents) -> str:
                     messages=openai_msgs,
                     temperature=0.65,
                 ),
-                timeout=15.0
+                timeout=3.5
             )
             if response and response.choices and response.choices[0].message.content:
-                return response.choices[0].message.content
+                return response.choices[0].message.content.strip()
         except Exception as e:
-            openai_disabled_until = time.time() + 86400  # 24 soatga o'tkazib yuborish
+            openai_disabled_until = now + 86400  # 24 soatga o'tkazib yuborish
             logging.info(f"OpenAI o'tkazib yuborildi (Gemini ishlatiladi): {e}")
 
-    # 2. GEMINI 3.8 FLASH (Asosiy, yuqori sifatli) + GEMINI 3.5 FLASH LITE (Ishonchli zaxira)
+    # 2. GEMINI 3.8 FLASH (Asosiy) + GEMINI 3.5 FLASH LITE (Zaxira) + FLASH LITE LATEST
     if gemini_client:
-        models_to_try = ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
-        for model_name in models_to_try:
+        models_to_try = [
+            ("gemini-3.8-flash", 4.0),
+            ("gemini-3.5-flash-lite", 8.0),
+            ("gemini-flash-lite-latest", 8.0)
+        ]
+        for model_name, tm in models_to_try:
+            # Agar model 503/429 sababli cooldown da bo'lsa, uni o'tkazib yuboramiz
+            if now < model_cooldowns.get(model_name, 0):
+                continue
+
             try:
                 response = await asyncio.wait_for(
                     asyncio.to_thread(
@@ -281,14 +315,20 @@ async def ask_ai(contents) -> str:
                         config=genai_types.GenerateContentConfig(
                             system_instruction=system_instruction,
                             temperature=0.65,
+                            automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True)
                         ),
                     ),
-                    timeout=20.0
+                    timeout=tm
                 )
                 if response and response.text:
-                    return response.text
+                    return response.text.strip()
             except Exception as e:
-                logging.warning(f"Model {model_name} xatolik berdi: {e}. Keyingi zaxira modelga o'tilmoqda...")
+                err_msg = str(e)
+                if "503" in err_msg or "429" in err_msg or "UNAVAILABLE" in err_msg:
+                    model_cooldowns[model_name] = now + 300  # 5 daqiqa cooldown
+                    logging.warning(f"Model {model_name} band yoki kvotasi tugagan (503/429). 5 daqiqa zaxira model ishlatiladi.")
+                else:
+                    logging.warning(f"Model {model_name} xatolik berdi: {e}. Keyingi zaxira modelga o'tilmoqda...")
 
     return "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
 
@@ -306,11 +346,12 @@ async def safe_reply(message: types.Message, text: str):
 async def safe_answer(message: types.Message, text: str, reply_markup=None):
     """Xavfsiz xabar yuborish (uzun matnlarni avtomatik bo'laklab yuboradi)"""
     chunks = [text[i:i+4000] for i in range(0, len(text), 4000)] if len(text) > 4000 else [text]
-    for chunk in chunks:
+    for idx, chunk in enumerate(chunks):
+        markup = reply_markup if idx == len(chunks) - 1 else None
         try:
-            await message.answer(chunk, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
+            await message.answer(chunk, parse_mode=ParseMode.MARKDOWN, reply_markup=markup)
         except Exception:
-            await message.answer(chunk, parse_mode=None, reply_markup=reply_markup)
+            await message.answer(chunk, parse_mode=None, reply_markup=markup)
 
 
 @dp.message(CommandStart())
@@ -474,6 +515,19 @@ async def group_message_handler(message: types.Message, bot: Bot):
         if not clean_text:
             clean_text = "Salom"
 
+        # Agar guruhda ota-ona telefon raqam qoldirgan bo'lsa, uni ham lead sifatida saqlash va adminga bildirish
+        detected_group_phone = extract_phone(clean_text)
+        if detected_group_phone and message.from_user:
+            await save_lead(message.from_user, phone=detected_group_phone, note=f"Guruhdan olindi ({message.chat.title or 'Guruh'}): {clean_text[:50]}")
+            asyncio.create_task(notify_admins(
+                f"🔔 *Yangi ota-ona ma'lumoti olindi (Guruhdan)!*\n\n"
+                f"👤 Ism: {message.from_user.full_name}\n"
+                f"📞 Tel: `{detected_group_phone}`\n"
+                f"💬 Telegram: @{message.from_user.username or 'mavjud emas'}\n"
+                f"👥 Guruh: {message.chat.title or message.chat.id}\n"
+                f"🕒 Vaqt: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            ))
+
         await bot.send_chat_action(message.chat.id, "typing")
         reply = await ask_ai(clean_text)
         await safe_reply(message, reply)
@@ -484,7 +538,7 @@ async def private_message_handler(message: types.Message):
     """Lichkadagi xabarlar — Kontekstni saqlagan holda professional maslahat berish"""
     user_text = message.text or message.caption
     
-    if not user_text:
+    if not user_text or not user_text.strip():
         if message.voice:
             await safe_answer(
                 message, 
@@ -497,6 +551,38 @@ async def private_message_handler(message: types.Message):
                 "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz, yordam berishdan mamnunman! 😊"
             )
             return
+        elif message.photo or message.document or message.video or message.audio:
+            await safe_answer(
+                message,
+                "Faylingiz qabul qilindi! Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz, bajonidil javob beraman! 😊"
+            )
+            return
+        elif message.location:
+            await safe_answer(
+                message,
+                "Lokatsiyangiz uchun rahmat! Sizga eng yaqin filialimizni aniqlash uchun: Samarqand darvoza, Uchtepa, Jizzax, Namangan yoki Olmaliq filiallarimizdan qaysi biri sizga qulayroq? 😊"
+            )
+            return
+        else:
+            await safe_answer(
+                message,
+                "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Bemalol yozib yuborishingiz mumkin! 😊"
+            )
+            return
+
+    # /help yoki yordam so'ralganda
+    if user_text.strip().lower() in ["/help", "help", "yordam"]:
+        await safe_answer(
+            message,
+            "Assalomu alaykum! Men \"Yuksalish Maktabi\" ta'lim maslahatchisi **Aishaman**. 😊\n\n"
+            "Sizga quyidagi masalalarda to'liq ma'lumot bera olaman:\n"
+            "• Oylik to'lov (5.3 mln so'm) va stipendiyalar\n"
+            "• Filiallar manzili (Toshkent, Jizzax, Namangan, Olmaliq)\n"
+            "• 1-11 sinflarga qabul tartibi va imtihonlar\n"
+            "• 40 xil taomli sog'lom ovqatlanish\n"
+            "• STEM, to'garaklar va Muhammadali Eshonqulov tarbiya metodikasi\n\n"
+            "Savolingizni shunchaki xabar sifatida yozsangiz kifoya!"
+        )
         return
 
     # Admin kalit so'zlari bo'lsa o'tkazib yuborish
