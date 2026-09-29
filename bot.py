@@ -181,13 +181,14 @@ async def ask_ai(contents) -> str:
             openai_disabled_until = time.time() + 86400  # 24 soatga o'tkazib yuborish
             logging.info(f"OpenAI o'tkazib yuborildi (Gemini ishlatiladi): {e}")
 
-    # 2. GEMINI 3.5 FLASH LITE (Asosiy, tezkor va barqaror)
+    # 2. GEMINI 3.8 FLASH (Asosiy, yuqori sifatli) + GEMINI 3.5 FLASH LITE (Ishonchli zaxira)
     if gemini_client:
-        for attempt in range(2):
+        models_to_try = ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
+        for model_name in models_to_try:
             try:
                 response = await asyncio.to_thread(
                     gemini_client.models.generate_content,
-                    model="gemini-3.5-flash-lite",
+                    model=model_name,
                     contents=contents,
                     config=genai_types.GenerateContentConfig(
                         system_instruction=system_instruction,
@@ -197,8 +198,7 @@ async def ask_ai(contents) -> str:
                 if response and response.text:
                     return response.text
             except Exception as e:
-                logging.warning(f"Gemini urinish {attempt+1} xatolik: {e}")
-                await asyncio.sleep(0.3)
+                logging.warning(f"Model {model_name} xatolik berdi: {e}. Keyingi zaxira modelga o'tilmoqda...")
 
     return "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
 
@@ -418,9 +418,11 @@ async def handle_status(request):
     data = {
         "status": "online",
         "bot": "@yuksalish_maktabi_adminbot",
+        "primary_model": "gemini-3.8-flash",
+        "fallback_model": "gemini-3.5-flash-lite",
         "gemini_active": bool(gemini_client),
         "openai_active": bool(openai_client),
-        "version": "v2.3-fixed-reply",
+        "version": "v2.4-gemini-3.8",
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     return web.json_response(data)
