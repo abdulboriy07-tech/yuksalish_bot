@@ -13,8 +13,6 @@
 • AKADEMIK NATIJALAR VA XALQARO STANDARTLAR:
   - Repetitorsiz maktab: O'quvchilar qo'shimcha repetitorga bormasdan maktabning o'zida 7-9 sinflardayoq IELTS 7.5, 8.0, 8.5 va SAT 1400–1500+ ball natijalariga erishmoqda.
   - 9-sinfdan 10-sinfga o'tishdagi qat'iy standart: Bola 9-sinf oxirigacha IELTS masalasini yopishi shart (minimum 6.5–7.0 ball). Shunda 10- va 11-sinfda bola faqat xalqaro TOP universitetlar grantlari, xalqaro ilmiy portfoliolar va zamonaviy kasblar ustida ishlaydi.
-  - Yuqori natija ko'rsatgan 10-11 sinf o'quvchilariga o'qish to'lovidan 50% gacha chegirma beriladi.
-  - Iqtidorli, ilmga chanqoq yoshlarga Muhammadali Eshonqulov nomidagi 100% grantlar ajratiladi (masalan, kvant fizikasi va SpaceX tanlovida e'tirof etilgan iqtidorli o'quvchi 100% grantga olingan).
   - Har bir bitiruvchi maktabni tugatguncha kamida bitta zamonaviy hunarga (IT, dasturlash, 3D modellashtirish, robototexnika) ega bo'lib, o'zini mustaqil ta'minlay oladigan bo'ladi.
 
 • NUTRITSIOLOGIYA VA 100% SOG'LOM OVQATLANISH (MAVJUDA USTOZ):
@@ -36,7 +34,7 @@
   6. Saxiy va saxovatli shaxsiyat ("Mehr-saxovat qutisi"): Ijtimoiy faollik, ko'ngillilik (volontyorlik) va har oy sinf bilan ehtiyojmand oilalarga oziq-ovqat va ijtimoiy ko'mak yetkazish (saxovat va insonparvarlik tarbiyasi).
   7. Notiqlik, o'z fikrini omma oldida erkin bayon qilish san'ati.
   8. Kordinatorlar instituti: Har bir sinfda fan o'qituvchisidan tashqari alohida kordinator faqat o'quvchining ruhiyati, odobi, tarbiyasi va kun tartibi bilan shaxsan ishlaydi.
-  9. Choraklik stipendiya va reyting tizimi (45% gacha to'lovdan chegirma).
+  9. Reyting va rag'batlantirish tizimi (o'quvchilarning intellektual va axloqiy o'sishini qo'llab-quvvatlash).
   10. "Eng yaxshi sinf" statuetkasi: Jamoaviy ahillik va bir-birini qo'llab-quvvatlash ruhi.
 
 • FILIALLAR VA INFRATUZILMA:
@@ -56,9 +54,8 @@
 
 • NARX, CHEGIRMALAR VA QABUL TARTIBI:
   - Oylik to'lov: 5 300 000 so'm (08:30 dan 17:30 gacha to'liq kun, 3 mahal sog'lom ovqat, repetitorsiz chuqurlashtirilgan ta'lim, bepul STEM to'garaklari kiritilgan).
-  - Oila chegirmalari: 2 ta farzandga 5%, 3 ta va undan ko'pga 10%.
-  - Choraklik stipendiya: 1-o'rin 45%, 2-o'rin 35%, 3-o'rin 25%, 4-o'rin 15% to'lovdan chegirma.
-  - 10-11 sinf a'lochilariga: 50% gacha to'lov chegirmasi.
+  - Chegirmalar (QAT'IY QOIDA — FAQAT OILAVIY CHEGIRMA): Bir oiladan 2 ta farzand ta'lim olsa 5%, 3 ta va undan ortiq farzand ta'lim olsa 10% chegirma beriladi.
+  - DIQQAT: Maktabimizda boshqa har qanday chegirmalar, stipendiyalar yoki grantlar hali rasman tasdiqlanmagan. Ota-onalar bilan suhbatda FAQAT va FAQAT oilaviy chegirmalar haqida ma'lumot beriladi!
   - Qabul jarayoni:
     • 1-sinf: Pedagog va psixolog bilan suhbat asosida (6-7 yoshdan).
     • 2-11 sinf: 35 ta test (10 matematika, 10 ingliz tili, 10 psixologik, 5 mantiq) hamda ota-ona va bola bilan psixolog suhbati.
