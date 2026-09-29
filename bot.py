@@ -570,12 +570,13 @@ async def baza_help_handler(message: types.Message):
 
     text = (
         "🛠 *Bilimlar bazasini boshqarish kalit so'zlari (Faqat shaxsiy chatda):*\n\n"
-        "1. `#baza_yangilash` — mavjud bazani butunlay yangi matn bilan almashtirish.\n"
+        "1. `/bolimlar` yoki `/intervyu` — Bo'lim rahbarlaridan ma'lumot yig'ish (O'quv, Moliya, Kadrlar, Koordinatorlar).\n"
+        "2. `#baza_yangilash` — mavjud bazani butunlay yangi matn bilan almashtirish.\n"
         "*Foydalanish:* `#baza_yangilash [yangi ma'lumot matni]`\n\n"
-        "2. `#baza_qoshish` — mavjud bazaga qo'shimcha yangi ma'lumot qo'shish.\n"
+        "3. `#baza_qoshish` — mavjud bazaga qo'shimcha yangi ma'lumot qo'shish.\n"
         "*Foydalanish:* `#baza_qoshish [qo'shiladigan ma'lumot]`\n\n"
-        "3. `#baza_korish` — hozirgi bilimlar bazasini to'liq ko'rish.\n"
-        "4. `/leads` — ro'yxatdan o'tgan ota-onalar telefon raqamlari va ma'lumotlarini ko'rish.\n"
+        "4. `#baza_korish` — hozirgi bilimlar bazasini to'liq ko'rish.\n"
+        "5. `/leads` — ro'yxatdan o'tgan ota-onalar telefon raqamlari va ma'lumotlarini ko'rish.\n"
     )
     await safe_answer(message, text)
 
@@ -625,7 +626,331 @@ async def view_kb_handler(message: types.Message):
     await safe_answer(message, text)
 
 
+# ------------------ MAKTAB BO'LIMLARI BILAN INTERVYU VA BAZANI BOYITISH ------------------
+
+DEPARTMENTS = {
+    "oquv": {
+        "title": "📚 O'quv bo'limi",
+        "keywords": [
+            "#oquv", "/oquv", "#oquv_bolimi", "/oquv_bolimi",
+            "o'quv bo'limi", "oquv bolimi", "o‘quv bo‘limi", "o'quv", "oquv"
+        ],
+        "questions_text": """
+1. Dars dasturlari va darsliklar: 1–11 sinflarda qaysi davlat va xalqaro (Cambridge, Pearson, Oxford) darsliklardan foydalaniladi? Dars jadvali haftasiga necha kun va necha soatdan iborat?
+2. Xorijiy tillar chuqurlashuvi: Ingliz tili qaysi sinfdan boshlanadi va haftasiga necha soat? Rus, koreys va arab tillari qanday darajada o'qitiladi?
+3. 9-sinfda IELTS 6.5–7.0 talabi: O'quvchilar repetitorsiz bunday yuqori ballarga erishishi uchun qanday o'quv metodikasi qo'llaniladi?
+4. Uyga vazifalar va repetitorsiz tizim: Uyga vazifalar maktabning o'zida kordinator va ustozlar nazoratida bajariladimi yoki uyga ham beriladimi?
+5. Zamonaviy kasblar va STEM: Shanba kungi robototexnika, 3D modellashtirish, IT va dasturlash to'garaklarida o'quvchilar qanday amaliy loyihalar qilishadi?
+6. Qabul imtihonlari mezonlari: 2–11 sinflar uchun 35 ta testdan o'tish ballari qancha? Agar bola yiqilsa, qayta topshirish imkoniyati bormi?
+7. Olimpiadalar va xalqaro universitetlar: 10–11 sinf o'quvchilarining xalqaro grantlar va TOP universitetlarga kirish portfoliolarini tayyorlashda qanday amaliy yordam beriladi?
+""",
+        "welcome": (
+            "📚 *ASSALOMU ALAYKUM, HURMATLI O'QUV BO'LIMI MAS'ULI!*\n\n"
+            "Men — \"Yuksalish Maktabi\" sun'iy intellekt ta'lim maslahatchisi **Aishaman**. 😊\n"
+            "Ota-onalarga maktabimiz ta'lim sifati, o'quv dasturlari va akademik yutuqlar haqida "
+            "eng to'g'ri va to'liq ma'lumotlarni yetkazishim uchun sizning yo'nalishingizdagi quyidagi "
+            "aniq ma'lumotlar menga juda zarur:\n\n"
+            "1️⃣ *Dars dasturlari va darsliklar:* 1–11 sinflarda qaysi davlat va xalqaro (Cambridge, Pearson va h.k.) darsliklaridan foydalaniladi? Dars jadvali haftasiga necha kun va kuniga necha soat?\n"
+            "2️⃣ *Xorijiy tillar chuqurlashuvi:* Ingliz tili qaysi sinfdan boshlanadi va haftasiga necha soat o'tiladi? Rus, koreys va arab tillari qanday darajada o'qitiladi?\n"
+            "3️⃣ *IELTS 7.5–8.5 natijalari:* 7–9 sinf o'quvchilari repetitorsiz bunday natijalarga erishishi uchun qanday metodika qo'llaniladi? 9-sinf oxiridagi talab (6.5–7.0) qanday nazorat qilinadi?\n"
+            "4️⃣ *Uyga vazifalar va repetitorsiz tizim:* Uyga vazifalar maktabning o'zida kordinator va ustozlar nazoratida bajariladimi yoki uyga ham beriladimi?\n"
+            "5️⃣ *Zamonaviy kasblar va STEM:* Shanba kungi robototexnika, 3D modellashtirish, IT va dasturlash to'garaklarida bolalar aynan nimalarni o'rganishadi?\n"
+            "6️⃣ *Qabul imtihonlari mezonlari:* 2–11 sinflar uchun 35 ta testdan o'tish ballari qancha? Agar bola yiqilsa, qayta topshirish imkoniyati bormi?\n"
+            "7️⃣ *Xalqaro grantlar va TOP universitetlar:* 10–11 sinfda o'quvchilarning xalqaro grantlar va portfoliolarini tayyorlashda qanday amaliy yordam beriladi?\n\n"
+            "✍️ *Iltimos, ushbu savollarga o'zingizga qulay tartibda — xoh bitta xabarda, xoh ketma-ket javob bering.* "
+            "Men har bir javobingizni tahlil qilib, bilimlar bazamizga kiritib boraman!\n\n"
+            "_(Suhbatni yakunlash uchun `/chiqish` yoki `#chiqish` deb yozishingiz mumkin)_"
+        )
+    },
+    "moliya": {
+        "title": "💰 Moliya bo'limi",
+        "keywords": [
+            "#moliya", "/moliya", "#moliya_bolimi", "/moliya_bolimi",
+            "moliya bo'limi", "moliya bolimi", "moliya", "buxgalteriya"
+        ],
+        "questions_text": """
+1. To'lov muddatlari va paketlari: Oylik to'lov 5 300 000 so'm. Agar ota-ona 1 chorak yoki butun yillik o'qish uchun oldindan to'lov qilsa, qo'shimcha chegirmalar bormi?
+2. To'lov usullari va shartnoma: To'lov qaysi usullarda qabul qilinadi (Payme, Click, bank orqali hisob raqamga, terminal, naqd)? Shartnoma qayerda va qanday tartibda imzolanadi?
+3. Narx ichiga kirmaydigan xarajatlar: 5.3 mln so'm ichiga ta'lim, 3 mahal ovqat va to'garaklar kiradi. Maktab formasi, darsliklar, yillik ekskursiyalar yoki xalqaro imtihonlar uchun alohida to'lov bormi?
+4. Oila chegirmalari mexanizmi: Bir oiladan 2 ta farzand (5%) yoki 3 ta farzand (10%) o'qiganda chegirma har bir bolaga alohida qo'llaniladimi?
+5. Choraklik stipendiyalar (45%, 35%, 25%, 15%): Stipendiya to'lovdan chegirma shaklida yechib beriladimi yoki kartaga pul ko'rinishida beriladimi? Bu chegirma qaysi oylik to'lovga nisbatan qo'llaniladi?
+6. Qoldirilgan kunlar va ta'tillar: Agar bola betob bo'lib dars qoldirsa yoki yozgi/qishki ta'tillarda oylik to'lov qanday hisob-kitob qilinadi?
+7. Muhammadali Eshonqulov nomidagi 100% grant: Ushbu grantni yutgan o'quvchi moliyaviy tomondan qaysi xarajatlardan to'liq ozod etiladi?
+""",
+        "welcome": (
+            "💰 *ASSALOMU ALAYKUM, HURMATLI MOLIYA BO'LIMI MAS'ULI!*\n\n"
+            "Men — \"Yuksalish Maktabi\" sun'iy intellekt ta'lim maslahatchisi **Aishaman**. 😊\n"
+            "Ota-onalarimiz eng ko'p so'raydigan to'lov shartlari, shartnoma, chegirmalar va stipendiyalar "
+            "bo'yicha to'liq va aniq tushuntirish bera olishim uchun menga quyidagi ma'lumotlar zarur:\n\n"
+            "1️⃣ *To'lov muddatlari va paketlari:* Oylik to'lov 5 300 000 so'm. Agar ota-ona 1 chorak yoki butun yillik o'qish uchun oldindan to'lov qilsa, qo'shimcha chegirmalar bormi?\n"
+            "2️⃣ *To'lov usullari va shartnoma:* To'lov qaysi usullarda qabul qilinadi (Payme, Click, bank orqali hisob raqamga, terminal, naqd)? Shartnoma qayerda va qanday tartibda imzolanadi?\n"
+            "3️⃣ *Narx ichiga kirmaydigan xarajatlar:* 5.3 mln so'm ichiga ta'lim, 3 mahal ovqat va to'garaklar kiradi. Maktab formasi, darsliklar, yillik ekskursiyalar yoki xalqaro imtihonlar uchun alohida to'lov bormi?\n"
+            "4️⃣ *Oila chegirmalari mexanizmi:* Bir oiladan 2 ta farzand (5%) yoki 3 ta farzand (10%) o'qiganda chegirma har bir bolaga alohida qo'llaniladimi?\n"
+            "5️⃣ *Choraklik stipendiyalar (45%, 35%, 25%, 15%):* Stipendiya to'lovdan chegirma shaklida yechib beriladimi yoki kartaga pul ko'rinishida beriladimi? Bu chegirma qaysi oylik to'lovga nisbatan qo'llaniladi?\n"
+            "6️⃣ *Qoldirilgan kunlar va ta'tillar:* Agar bola betob bo'lib dars qoldirsa yoki yozgi/qishki ta'tillarda oylik to'lov qanday hisob-kitob qilinadi?\n"
+            "7️⃣ *Muhammadali Eshonqulov nomidagi 100% grant:* Ushbu grantni yutgan o'quvchi moliyaviy tomondan qaysi xarajatlardan to'liq ozod etiladi?\n\n"
+            "✍️ *Iltimos, ushbu moliyaviy masalalarga o'zingizga qulay tarzda oydinlik kiritib bersangiz.* "
+            "Ma'lumotlaringiz asosida bilimlar bazamizni yangilab boraman!\n\n"
+            "_(Suhbatni yakunlash uchun `/chiqish` yoki `#chiqish` deb yozishingiz mumkin)_"
+        )
+    },
+    "kadrlar": {
+        "title": "👥 Kadrlar bo'limi",
+        "keywords": [
+            "#kadrlar", "/kadrlar", "#kadrlar_bolimi", "/kadrlar_bolimi",
+            "kadrlar bo'limi", "kadrlar bolimi", "kadrlar", "hr", "#hr", "/hr"
+        ],
+        "questions_text": """
+1. Ustozlarni saralash bosqichlari: Yangi o'qituvchilar ishga qabul qilinishida qanday bosqichlardan (test, ochiq dars, psixologik suhbat) o'tishadi? 1 ta o'ringa o'rtacha nechta nomzod to'g'ri keladi?
+2. Malaka va sertifikatlar: Chet tili (ingliz, rus, arab, koreys) o'qituvchilarimizda IELTS (necha ball?), CELTA, TESOL, TKT yoki boshqa qanday sertifikatlar talab qilinadi?
+3. Mahorat va tajriba: Boshlang'ich va yuqori sinf ustozlarimizning o'rtacha ish tajribasi necha yil? Ular orasida toifali, oliy toifali pedagoglar bormi?
+4. Chet ellik (native speaker) mutaxassislar: Maktabimizda chet ellik o'qituvchilar faoliyat yuritadimi yoki xalqaro loyihalarga jalb etiladimi?
+5. Ustozlar uchun ichki malaka oshirish: Maktab doirasida pedagoglarimiz uchun qanday ichki treninglar, psixologik seminarlar va Muhammadali Eshonqulov mahorat darslari tashkil etiladi?
+6. Sinfdagi nisbat va shaxsiy e'tibor: Bitta sinfda o'quvchilar soni (maksimum 22–24 ta) va ustoz hamda kordinatorlarning har bir bolaga yakka tartibdagi e'tibori qanday ta'minlanadi?
+""",
+        "welcome": (
+            "👥 *ASSALOMU ALAYKUM, HURMATLI KADRLAR BO'LIMI MAS'ULI!*\n\n"
+            "Men — \"Yuksalish Maktabi\" sun'iy intellekt ta'lim maslahatchisi **Aishaman**. 😊\n"
+            "Ota-onalarimizga ustozlarimizning malakasi, saralash mezonlari va pedagogik jamoamizning "
+            "kuchi haqida to'liq ishonch bilan ma'lumot berishim uchun quyidagi savollarim bor:\n\n"
+            "1️⃣ *Ustozlarni saralash bosqichlari:* Yangi o'qituvchilar ishga qabul qilinishida qanday bosqichlardan (test, ochiq dars, psixologik suhbat) o'tishadi? 1 ta o'ringa o'rtacha nechta nomzod to'g'ri keladi?\n"
+            "2️⃣ *Malaka va sertifikatlar:* Chet tili (ingliz, rus, arab, koreys) o'qituvchilarimizda IELTS (necha ball?), CELTA, TESOL, TKT yoki boshqa qanday sertifikatlar talab qilinadi?\n"
+            "3️⃣ *Mahorat va tajriba:* Boshlang'ich va yuqori sinf ustozlarimizning o'rtacha ish tajribasi necha yil? Ular orasida toifali, oliy toifali pedagoglar bormi?\n"
+            "4️⃣ *Chet ellik (native speaker) mutaxassislar:* Maktabimizda chet ellik o'qituvchilar faoliyat yuritadimi yoki xalqaro loyihalarga jalb etiladimi?\n"
+            "5️⃣ *Ustozlar uchun ichki malaka oshirish:* Maktab doirasida pedagoglarimiz uchun qanday ichki treninglar, psixologik seminarlar va Muhammadali Eshonqulov mahorat darslari tashkil etiladi?\n"
+            "6️⃣ *Sinfdagi nisbat va shaxsiy e'tibor:* Bitta sinfda o'quvchilar soni (maksimum 22–24 ta) va ustoz hamda kordinatorlarning har bir bolaga yakka tartibdagi e'tibori qanday ta'minlanadi?\n\n"
+            "✍️ *Iltimos, ushbu ma'lumotlarni qulay shaklda yozib yuborsangiz.* "
+            "Har bir faktni bilimlar bazamizga kiritib, ota-onalarga faxr bilan yetkazaman!\n\n"
+            "_(Suhbatni yakunlash uchun `/chiqish` yoki `#chiqish` deb yozishingiz mumkin)_"
+        )
+    },
+    "koordinatorlar": {
+        "title": "🎯 Koordinatorlar bo'limi",
+        "keywords": [
+            "#koordinatorlar", "/koordinatorlar", "#koordinator", "/koordinator",
+            "#koordinatorlar_bolimi", "/koordinatorlar_bolimi",
+            "koordinatorlar bo'limi", "koordinatorlar bolimi", "koordinator", "koordinatorlar"
+        ],
+        "questions_text": """
+1. Koordinatorning bir kunlik faoliyati: Koordinator ertalab 08:30 dan kechki 17:30 gacha sinf bilan qanday ish olib boradi? Uning fan o'qituvchisidan asosiy farqi nimada?
+2. Ertalabki intizom va yugurish monitoringi: Bolalarning quyosh chiqishidan oldin uyg'onishi, xonasini yig'ishtirishi va 1–6 km yugurib video-hisobot yuborishi amalda qanday tekshiriladi va rag'batlantiriladi?
+3. Telefon qaramligiga qarshi amaliyot: "Qancha kitob o'qisang, shuncha vaqt telefon seniki" va "uyqu atrofi mutolaasi" (yiliga 50 ta kitob) qanday nazorat qilinadi? Kitob o'qilgani qanday tekshiriladi?
+4. Ota-ona bilan aloqa va hisobot: Koordinator ota-onaga bolaning xulqi, kayfiyati, darsdagi faolligi haqida qanday va qaysi muddatda (kunlik, haftalik) hisobot berib boradi?
+5. Do'stona muhit va nizolarni hal qilish: Sinfda bolalar o'rtasida tushunmovchilik bo'lsa yoki biron bola jamoaga moslasha olmasa, koordinator va maktab psixologi buni qanday hal qiladi?
+6. Mehr-saxovat qutisi va ko'ngillilik: Har oy sinf bilan ehtiyojmand oilalarga oziq-ovqat yetkazish amaliyoti amalda qanday tashkil etiladi? Bolalar bu jarayonda qanday qatnashadi?
+7. Ovqatlanish madaniyati: 3 mahal sog'lom ovqatlanish paytida koordinator bolalarda to'g'ri taomlanish va stol odoblarini qanday shakllantiradi?
+""",
+        "welcome": (
+            "🎯 *ASSALOMU ALAYKUM, HURMATLI KOORDINATORLAR BO'LIMI MAS'ULI!*\n\n"
+            "Men — \"Yuksalish Maktabi\" sun'iy intellekt ta'lim maslahatchisi **Aishaman**. 😊\n"
+            "Maktabimizning eng katta o'ziga xosligi va ustunligi — bu tarbiya tizimi va koordinatorlar institutidir. "
+            "Ota-onalarga bu tizim qanday amaliy ishlashini to'liq tushuntirishim uchun quyidagi savollarim bor:\n\n"
+            "1️⃣ *Koordinatorning bir kunlik faoliyati:* Koordinator ertalab 08:30 dan kechki 17:30 gacha sinf bilan qanday ish olib boradi? Uning fan o'qituvchisidan asosiy farqi nimada?\n"
+            "2️⃣ *Ertalabki intizom va yugurish monitoringi:* Bolalarning quyosh chiqishidan oldin uyg'onishi, xonasini yig'ishtirishi va 1–6 km yugurib video-hisobot yuborishi amalda qanday tekshiriladi va rag'batlantiriladi?\n"
+            "3️⃣ *Telefon qaramligiga qarshi amaliyot:* \"Qancha kitob o'qisang, shuncha vaqt telefon seniki\" va \"uyqu atrofi mutolaasi\" (yiliga 50 ta kitob) qanday nazorat qilinadi? Kitob o'qilgani qanday tekshiriladi?\n"
+            "4️⃣ *Ota-ona bilan aloqa va hisobot:* Koordinator ota-onaga bolaning xulqi, kayfiyati, darsdagi faolligi haqida qanday va qaysi muddatda (kunlik, haftalik) hisobot berib boradi?\n"
+            "5️⃣ *Do'stona muhit va nizolarni hal qilish:* Sinfda bolalar o'rtasida tushunmovchilik bo'lsa yoki biron bola jamoaga moslasha olmasa, koordinator va maktab psixologi buni qanday hal qiladi?\n"
+            "6️⃣ *Mehr-saxovat qutisi va ko'ngillilik:* Har oy sinf bilan ehtiyojmand oilalarga oziq-ovqat yetkazish amaliyoti amalda qanday tashkil etiladi? Bolalar bu jarayonda qanday qatnashadi?\n"
+            "7️⃣ *Ovqatlanish madaniyati:* 3 mahal sog'lom ovqatlanish paytida koordinator bolalarda to'g'ri taomlanish va stol odoblarini qanday shakllantiradi?\n\n"
+            "✍️ *Iltimos, ushbu tarbiya amaliyotlari bo'yicha batafsil ma'lumot bersangiz.* "
+            "Har bir javobingizni bilimlar bazamizga kiritib, mustahkamlab boraman!\n\n"
+            "_(Suhbatni yakunlash uchun `/chiqish` yoki `#chiqish` deb yozishingiz mumkin)_"
+        )
+    }
+}
+
+user_interview_sessions: dict[int, dict] = {}
+
+def get_departments_keyboard() -> types.InlineKeyboardMarkup:
+    """Bo'limlarni tanlash uchun inline tugmalar"""
+    return types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(text="📚 O'quv bo'limi", callback_data="dept_oquv"),
+                types.InlineKeyboardButton(text="💰 Moliya bo'limi", callback_data="dept_moliya")
+            ],
+            [
+                types.InlineKeyboardButton(text="👥 Kadrlar bo'limi", callback_data="dept_kadrlar"),
+                types.InlineKeyboardButton(text="🎯 Koordinatorlar bo'limi", callback_data="dept_koordinatorlar")
+            ]
+        ]
+    )
+
+def get_exit_keyboard() -> types.InlineKeyboardMarkup:
+    """Suhbatni yakunlash tugmasi"""
+    return types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [types.InlineKeyboardButton(text="🚪 Suhbatni yakunlash", callback_data="dept_exit")]
+        ]
+    )
+
+def check_dept_keyword(text: str) -> tuple[str | None, str]:
+    """
+    Xabardan bo'lim kalit so'zini aniqlaydi.
+    Qaytaradi: (dept_key, remaining_text)
+    """
+    if not text:
+        return None, ""
+    cleaned = text.strip()
+    lowered = cleaned.lower()
+    
+    for dept_key, d_data in DEPARTMENTS.items():
+        for kw in d_data["keywords"]:
+            kw_lower = kw.lower()
+            if lowered == kw_lower:
+                return dept_key, ""
+            if lowered.startswith(kw_lower + " ") or lowered.startswith(kw_lower + "\n") or lowered.startswith(kw_lower + ":"):
+                remaining = cleaned[len(kw):].lstrip(" :\n")
+                return dept_key, remaining
+    return None, ""
+
+async def process_department_feedback(dept_key: str, user_text: str, user_name: str) -> str:
+    """Bo'lim mas'uli bergan ma'lumotlarni tahlil qilish, bazaga qo'shish va keyingi savollarni berish"""
+    global CURRENT_KB
+    dept = DEPARTMENTS[dept_key]
+    dept_title = dept["title"]
+    
+    analysis_prompt = f"""
+Siz — 'Yuksalish Maktabi'ning sun'iy intellekt ta'lim maslahatchisi Aisha uchun bilimlar bazasini boyituvchi intellektual tahlilchisiz.
+Maktabning {dept_title} mas'uli/rahbari ({user_name}) quyidagi ma'lumotlarni taqdim etdi:
+---
+{user_text}
+---
+
+Ushbu bo'limning asosiy savollari:
+{dept["questions_text"]}
+
+Vazifangiz:
+1. Taqdim etilgan ma'lumotlardan eng muhim faktlarni ajratib oling va bilimlar bazasi (knowledge base) uchun qisqa, aniq va tizimli formatga (faktlar ro'yxati ko'rinishida) keltiring.
+2. Rahbarga samimiy minnatdorchilik bildiring va qabul qilingan ma'lumotlar xulosasini ko'rsating.
+3. Yuqoridagi savollardan qaysilari hali yoritilmagan bo'lsa, ulardan 1-2 tasini muloyimlik bilan qo'shimcha so'rang.
+4. Suhbatni yakunlash uchun /chiqish komandasini eslating.
+5. QAT'IY QOIDA: Diniy atamalar mutlaqo ishlatilmasin (100% dunyoviy til).
+"""
+    extracted_summary = ""
+    try:
+        if gemini_client:
+            resp = await asyncio.wait_for(
+                asyncio.to_thread(
+                    gemini_client.models.generate_content,
+                    model="gemini-3.8-flash",
+                    contents=analysis_prompt,
+                    config=genai_types.GenerateContentConfig(
+                        temperature=0.4,
+                        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True)
+                    )
+                ),
+                timeout=10.0
+            )
+            if resp and resp.text:
+                extracted_summary = resp.text.strip()
+    except Exception as e:
+        logging.warning(f"Department AI analysis primary error: {e}")
+        try:
+            if gemini_client:
+                resp = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        gemini_client.models.generate_content,
+                        model="gemini-3.5-flash-lite",
+                        contents=analysis_prompt,
+                        config=genai_types.GenerateContentConfig(
+                            temperature=0.4,
+                            automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True)
+                        )
+                    ),
+                    timeout=10.0
+                )
+                if resp and resp.text:
+                    extracted_summary = resp.text.strip()
+        except Exception as e2:
+            logging.error(f"Department AI fallback error: {e2}")
+
+    if not extracted_summary:
+        extracted_summary = (
+            f"Katta rahmat! {dept_title} bo'yicha bergan ma'lumotlaringiz muvaffaqiyatli qabul qilindi va bilimlar bazamizga kiritildi.\n\n"
+            "Yana qo'shimcha ma'lumotlaringiz bo'lsa, bemalol yozishingiz mumkin. Suhbatni yakunlash uchun esa /chiqish deb yozing."
+        )
+
+    # Diniy so'zlardan tozalash
+    extracted_summary = sanitize_secular_text(extracted_summary)
+
+    # Bilimlar bazasiga avtomatik qo'shish
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    kb_entry = f"\n\n• {dept_title.upper()} QO'SHIMCHA MA'LUMOTLARI ({timestamp}):\n  - {user_text.strip()}"
+    new_kb = CURRENT_KB + kb_entry
+    save_knowledge_base(new_kb)
+    CURRENT_KB = new_kb
+
+    # Arxiv log fayliga yozish
+    try:
+        archive_path = os.path.join(BASE_DIR, "transcripts", "department_interviews.jsonl")
+        os.makedirs(os.path.dirname(archive_path), exist_ok=True)
+        with open(archive_path, "a", encoding="utf-8") as f:
+            log_item = {
+                "department": dept_key,
+                "user_name": user_name,
+                "raw_text": user_text,
+                "created_at": timestamp
+            }
+            f.write(json.dumps(log_item, ensure_ascii=False) + "\n")
+    except Exception as e:
+        logging.warning(f"Archive write error: {e}")
+
+    return extracted_summary
+
+
+@dp.message(F.chat.type == "private", Command(commands=["intervyu", "bolimlar"]))
+async def departments_command_handler(message: types.Message):
+    """Bo'limlar ro'yxati va intervyu menyusi"""
+    menu_text = (
+        "🏛 *'Yuksalish Maktabi' bo'limlari bilan bilimlar bazasini mustahkamlash markazi*\n\n"
+        "Siz maktabimiz bo'limlari rahbarlari bilan suhbat o'tkazib, bot bilimlar bazasini kengaytirishingiz mumkin.\n\n"
+        "Quyidagi bo'limlardan birini tanlang yoki kalit so'zni yuboring:\n"
+        "• `#oquv` yoki `/oquv` — O'quv bo'limi\n"
+        "• `#moliya` yoki `/moliya` — Moliya bo'limi\n"
+        "• `#kadrlar` yoki `/kadrlar` — Kadrlar bo'limi\n"
+        "• `#koordinatorlar` yoki `/koordinatorlar` — Koordinatorlar bo'limi\n\n"
+        "Kerakli bo'limni tanlaganingizda, Aisha o'sha sohaning eng muhim savollarini beradi va olingan javoblarni avtomatik o'rganadi!"
+    )
+    await safe_answer(message, menu_text, reply_markup=get_departments_keyboard())
+
+
+@dp.callback_query(F.data.startswith("dept_"))
+async def dept_callback_handler(callback: types.CallbackQuery):
+    """Inline tugma orqali bo'lim tanlanganda yoki chiqish bosilganda"""
+    if callback.data == "dept_exit":
+        user_id = callback.from_user.id
+        if user_id in user_interview_sessions:
+            dept_key = user_interview_sessions.pop(user_id)["dept"]
+            dept_title = DEPARTMENTS[dept_key]["title"]
+            await callback.message.answer(
+                f"✅ *{dept_title} bo'yicha suhbat yakunlandi!*\n\n"
+                "Taqdim etilgan barcha qimmatli ma'lumotlar bilimlar bazamizga saqlandi. "
+                "Endi ota-onalarga beriladigan javoblarda ushbu ma'lumotlardan to'liq foydalanaman. Katta rahmat! 😊"
+            )
+        else:
+            await callback.message.answer("Suhbat allaqachon yakunlangan.")
+        await callback.answer()
+        return
+
+    dept_key = callback.data.replace("dept_", "")
+    if dept_key in DEPARTMENTS:
+        user_id = callback.from_user.id
+        user_interview_sessions[user_id] = {
+            "dept": dept_key,
+            "started_at": datetime.now().isoformat(),
+            "answers_count": 0
+        }
+        dept_info = DEPARTMENTS[dept_key]
+        await callback.message.answer(
+            dept_info["welcome"],
+            reply_markup=get_exit_keyboard()
+        )
+    await callback.answer()
+
+
 # ------------------ TELEFON KONTAKTI YUBORILGANDA ------------------
+
 
 @dp.message(F.chat.type == "private", F.contact)
 async def contact_handler(message: types.Message):
@@ -728,6 +1053,64 @@ async def private_message_handler(message: types.Message):
             )
             return
 
+    user_id = message.from_user.id
+    user_name = message.from_user.full_name or "Mas'ul"
+
+    # 1. /bolimlar yoki /intervyu so'ralganda
+    if user_text.strip().lower() in ["/bolimlar", "/intervyu", "#bolimlar", "#intervyu", "bolimlar", "intervyu", "bo'limlar"]:
+        menu_text = (
+            "🏛 *'Yuksalish Maktabi' bo'limlari bilan bilimlar bazasini mustahkamlash markazi*\n\n"
+            "Siz maktabimiz bo'limlari rahbarlari bilan suhbat o'tkazib, bot bilimlar bazasini kengaytirishingiz mumkin.\n\n"
+            "Quyidagi bo'limlardan birini tanlang yoki kalit so'zni yuboring:\n"
+            "• `#oquv` yoki `/oquv` — O'quv bo'limi\n"
+            "• `#moliya` yoki `/moliya` — Moliya bo'limi\n"
+            "• `#kadrlar` yoki `/kadrlar` — Kadrlar bo'limi\n"
+            "• `#koordinatorlar` yoki `/koordinatorlar` — Koordinatorlar bo'limi\n\n"
+            "Kerakli bo'limni tanlaganingizda, Aisha o'sha sohaning eng muhim savollarini beradi va olingan javoblarni avtomatik o'rganadi!"
+        )
+        await safe_answer(message, menu_text, reply_markup=get_departments_keyboard())
+        return
+
+    # 2. Agar foydalanuvchi hozirda bo'lim intervyusi rejimida bo'lsa
+    if user_id in user_interview_sessions:
+        # Chiqish so'zi bo'lsa
+        if user_text.strip().lower() in ["/chiqish", "#chiqish", "chiqish", "tamom", "tugatish", "stop", "exit"]:
+            dept_key = user_interview_sessions.pop(user_id)["dept"]
+            dept_title = DEPARTMENTS[dept_key]["title"]
+            await safe_answer(
+                message,
+                f"✅ *{dept_title} bo'yicha suhbat yakunlandi!*\n\n"
+                "Taqdim etilgan barcha qimmatli ma'lumotlar bilimlar bazamizga saqlandi. "
+                "Endi ota-onalarga beriladigan javoblarda ushbu ma'lumotlardan to'liq foydalanaman. Katta rahmat! 😊"
+            )
+            return
+
+        # Bo'lim rahbari ma'lumot yubordi
+        await bot.send_chat_action(message.chat.id, "typing")
+        sess = user_interview_sessions[user_id]
+        sess["answers_count"] = sess.get("answers_count", 0) + 1
+        reply = await process_department_feedback(sess["dept"], user_text, user_name)
+        await safe_answer(message, reply, reply_markup=get_exit_keyboard())
+        return
+
+    # 3. Yangi bo'lim kalit so'zi kiritilgan bo'lsa
+    dept_key, remaining_text = check_dept_keyword(user_text)
+    if dept_key:
+        user_interview_sessions[user_id] = {
+            "dept": dept_key,
+            "started_at": datetime.now().isoformat(),
+            "answers_count": 0
+        }
+        dept_info = DEPARTMENTS[dept_key]
+        await safe_answer(message, dept_info["welcome"], reply_markup=get_exit_keyboard())
+        
+        # Agar kalit so'z bilan birga darhol ma'lumot ham yozilgan bo'lsa
+        if remaining_text:
+            await bot.send_chat_action(message.chat.id, "typing")
+            reply = await process_department_feedback(dept_key, remaining_text, user_name)
+            await safe_answer(message, reply, reply_markup=get_exit_keyboard())
+        return
+
     # /help yoki yordam so'ralganda
     if user_text.strip().lower() in ["/help", "help", "yordam"]:
         await safe_answer(
@@ -737,8 +1120,9 @@ async def private_message_handler(message: types.Message):
             "• Oylik to'lov (5.3 mln so'm) va stipendiyalar\n"
             "• Filiallar manzili (Toshkent, Jizzax, Namangan, Olmaliq)\n"
             "• 1-11 sinflarga qabul tartibi va imtihonlar\n"
-            "• 40 xil taomli sog'lom ovqatlanish\n"
+            "• 100% sog'lom nutritsiologik ovqatlanish\n"
             "• STEM, to'garaklar va Muhammadali Eshonqulov tarbiya metodikasi\n\n"
+            "🏢 *Maktab bo'limlari bilan ishlash:* `/bolimlar` yoki `#oquv`, `#moliya`, `#kadrlar`, `#koordinatorlar`\n\n"
             "Savolingizni shunchaki xabar sifatida yozsangiz kifoya!"
         )
         return
@@ -747,7 +1131,6 @@ async def private_message_handler(message: types.Message):
     if user_text.startswith("#"):
         return
 
-    user_id = message.from_user.id
 
     # Telefon raqam mavjudligini tekshirish va avtomatik lead sifatida saqlash hamda adminga bildirish
     detected_phone = extract_phone(user_text)
