@@ -1,0 +1,14 @@
+[Unit]
+Description=Aisha Yuksalish Maktabi Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/yuksalish_bot
+ExecStart=/root/yuksalish_bot/venv/bin/python bot.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
