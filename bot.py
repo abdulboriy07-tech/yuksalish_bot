@@ -462,10 +462,10 @@ async def private_message_handler(message: types.Message):
 
     await safe_answer(message, reply)
 
-from aiohttp import web
+from aiohttp import web, ClientSession, TCPConnector
 
 async def handle_ping(request):
-    return web.Response(text="Aisha bot is online 24/7! (v2.2)")
+    return web.Response(text="Aisha bot is online 24/7! (v2.5)")
 
 async def handle_status(request):
     data = {
@@ -475,10 +475,27 @@ async def handle_status(request):
         "fallback_model": "gemini-3.5-flash-lite",
         "gemini_active": bool(gemini_client),
         "openai_active": bool(openai_client),
-        "version": "v2.4-gemini-3.8",
+        "version": "v2.5-keep-alive",
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     return web.json_response(data)
+
+async def keep_alive_ping():
+    """Render.com bepul serveri 15 daqiqada uxlab qolmasligi uchun har 8 daqiqada o'zini ping qilib turadi"""
+    app_url = os.getenv("RENDER_EXTERNAL_URL", "https://yuksalish-bot-9ns6.onrender.com").rstrip("/")
+    ping_url = f"{app_url}/health"
+    
+    await asyncio.sleep(45)  # Server to'liq ishga tushguncha kutish
+    
+    while True:
+        try:
+            async with ClientSession(connector=TCPConnector(ssl=False)) as session:
+                async with session.get(ping_url, timeout=15) as resp:
+                    logging.info(f"Keep-alive ping muvaffaqiyatli: {ping_url} (Status: {resp.status})")
+        except Exception as e:
+            logging.warning(f"Keep-alive ping xatosi: {e}")
+            
+        await asyncio.sleep(480)  # Har 8 daqiqada qaytariladi
 
 async def start_web_server():
     """Render va boshqa bulutli xizmatlar uchun portni tinglovchi veb-server"""
@@ -498,6 +515,9 @@ async def main():
     bot_info = await bot.get_me()
     print(f"Bot muvaffaqiyatli ishga tushdi: @{bot_info.username} ({bot_info.first_name})")
     await start_web_server()
+
+    # Render uxlab qolmasligi uchun avtomatik ping vazifasini ishga tushirish
+    asyncio.create_task(keep_alive_ping())
 
     # Eski webhook va osilib qolgan so'rovlarni tozalash
     await bot.delete_webhook(drop_pending_updates=True)
