@@ -1,5 +1,6 @@
 import os
 import re
+import io
 import json
 import time
 import asyncio
@@ -488,6 +489,42 @@ async def ask_ai(contents) -> str:
 
     fallback_text = "Assalomu alaykum! Maktabimiz haqida qiziqishingizdan xursandmiz. Farzandingiz nechanchi sinfga borishi yoki qaysi filialimiz haqida ma'lumot kerakligini aytsangiz, darhol yordam beraman! 😊"
     return sanitize_secular_text(fallback_text)
+
+
+async def transcribe_audio_message(audio_bytes: bytes, mime_type: str = "audio/ogg") -> str:
+    """Ovozli xabarni (audio) o'zbek tilidagi aniq matnga aylantirish (Gemini orqali)"""
+    if not gemini_client or not audio_bytes:
+        return ""
+
+    prompt = (
+        "Ushbu ovozli xabarni (audio) diqqat bilan eshiting va unda aytilgan barcha so'zlarni "
+        "o'zbek (yoki rus) tilida to'liq, so'zma-so'z, aniq matn (transkripsiya) ko'rinishida yozib bering. "
+        "Faqat va faqat aytilgan gaplarning matnini qaytaring, boshqa hech qanday so'z, sharh yoki izoh qo'shmang."
+    )
+    part = genai_types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
+
+    models = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-flash-lite-latest"]
+    for m in models:
+        try:
+            resp = await asyncio.wait_for(
+                asyncio.to_thread(
+                    gemini_client.models.generate_content,
+                    model=m,
+                    contents=[part, prompt],
+                    config=genai_types.GenerateContentConfig(
+                        temperature=0.1,
+                        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(disable=True)
+                    )
+                ),
+                timeout=20.0
+            )
+            if resp and resp.text:
+                return resp.text.strip()
+        except Exception as e:
+            logging.warning(f"Audio transcription on {m} failed: {e}")
+
+    return ""
+
 
 
 
@@ -995,6 +1032,22 @@ async def group_message_handler(message: types.Message, bot: Bot):
     if is_reply_to_bot or is_mentioned:
         raw_text = message.text or message.caption or ""
         clean_text = raw_text.replace(bot_username, "").strip()
+
+        # Guruhda ovozli xabar yuborilgan bo'lsa
+        if message.voice or message.audio:
+            await bot.send_chat_action(message.chat.id, "record_voice")
+            try:
+                voice_obj = message.voice or message.audio
+                mime_type = "audio/ogg" if message.voice else (message.audio.mime_type or "audio/mpeg")
+                file_info = await bot.get_file(voice_obj.file_id)
+                audio_stream = io.BytesIO()
+                await bot.download_file(file_info.file_path, audio_stream)
+                transcribed = await transcribe_audio_message(audio_stream.getvalue(), mime_type)
+                if transcribed:
+                    clean_text = transcribed
+            except Exception as e:
+                logging.error(f"Guruhda ovozni qayta ishlashda xatolik: {e}")
+
         if not clean_text:
             clean_text = "Salom"
 
@@ -1019,25 +1072,49 @@ async def group_message_handler(message: types.Message, bot: Bot):
 @dp.message(F.chat.type == "private")
 async def private_message_handler(message: types.Message):
     """Lichkadagi xabarlar — Kontekstni saqlagan holda professional maslahat berish"""
-    user_text = message.text or message.caption
-    
-    if not user_text or not user_text.strip():
-        if message.voice:
-            await safe_answer(
-                message, 
-                "Kechirasiz, hozircha ovozli xabarlarni tinglash imkoniyatim yo'q. Iltimos, savolingizni matn ko'rinishida yozsangiz, darhol yordam beraman! 😊"
-            )
-            return
-        elif message.sticker:
-            await safe_answer(
-                message, 
-                "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz, yordam berishdan mamnunman! 😊"
-            )
-            return
-        elif message.photo or message.document or message.video or message.audio:
+    is_voice = bool(message.voice or message.audio)
+    user_text = message.text or message.caption or ""
+
+    # 🎙 AGAR OVOZLI XABAR (VOICE YOKI AUDIO) YUBORILGAN BO'LSA
+    if is_voice:
+        await bot.send_chat_action(message.chat.id, "record_voice")
+        try:
+            voice_obj = message.voice or message.audio
+            mime_type = "audio/ogg" if message.voice else (message.audio.mime_type or "audio/mpeg")
+            file_info = await bot.get_file(voice_obj.file_id)
+            audio_stream = io.BytesIO()
+            await bot.download_file(file_info.file_path, audio_stream)
+            audio_bytes = audio_stream.getvalue()
+
+            transcribed_text = await transcribe_audio_message(audio_bytes, mime_type)
+            if not transcribed_text:
+                await safe_answer(
+                    message,
+                    "Kechirasiz, ovozli xabaringizni aniq eshitishning imkoni bo'lmadi. "
+                    "Iltimos, qayta yozib yuboring yoki matn ko'rinishida yozsangiz, darhol yordam beraman! 😊"
+                )
+                return
+            user_text = transcribed_text
+        except Exception as e:
+            logging.error(f"Ovozli xabarni yuklab olish yoki transkripsiya qilishda xatolik: {e}")
             await safe_answer(
                 message,
-                "Faylingiz qabul qilindi! Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz, bajonidil javob beraman! 😊"
+                "Ovozli xabarni qabul qilishda texnik uzilish yuz berdi. "
+                "Iltimos, qayta urinib ko'ring yoki savolingizni matn ko'rinishida yuboring! 😊"
+            )
+            return
+
+    if not user_text or not user_text.strip():
+        if message.sticker:
+            await safe_answer(
+                message, 
+                "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz yoki ovozli xabar yuborsangiz, yordam berishdan mamnunman! 😊"
+            )
+            return
+        elif message.photo or message.document or message.video:
+            await safe_answer(
+                message,
+                "Faylingiz qabul qilindi! Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Yozsangiz yoki ovozli xabar yuborsangiz, bajonidil javob beraman! 😊"
             )
             return
         elif message.location:
@@ -1049,7 +1126,7 @@ async def private_message_handler(message: types.Message):
         else:
             await safe_answer(
                 message,
-                "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Bemalol yozib yuborishingiz mumkin! 😊"
+                "Maktabimiz yoki farzandingiz ta'limi bo'yicha qanday savollaringiz bor? Bemalol yozib yoki ovozli xabar yuborishingiz mumkin! 😊"
             )
             return
 
@@ -1066,7 +1143,7 @@ async def private_message_handler(message: types.Message):
             "• `#moliya` yoki `/moliya` — Moliya bo'limi\n"
             "• `#kadrlar` yoki `/kadrlar` — Kadrlar bo'limi\n"
             "• `#koordinatorlar` yoki `/koordinatorlar` — Koordinatorlar bo'limi\n\n"
-            "Kerakli bo'limni tanlaganingizda, Aisha o'sha sohaning eng muhim savollarini beradi va olingan javoblarni avtomatik o'rganadi!"
+            "Kerakli bo'limni tanlaganingizda, Aisha o'sha sohaning eng muhim savollarini beradi va olingan javoblarni (matn yoki ovozli) avtomatik o'rganadi!"
         )
         await safe_answer(message, menu_text, reply_markup=get_departments_keyboard())
         return
@@ -1085,12 +1162,14 @@ async def private_message_handler(message: types.Message):
             )
             return
 
-        # Bo'lim rahbari ma'lumot yubordi
+        # Bo'lim rahbari ma'lumot yubordi (matn yoki ovozli)
         await bot.send_chat_action(message.chat.id, "typing")
         sess = user_interview_sessions[user_id]
         sess["answers_count"] = sess.get("answers_count", 0) + 1
         reply = await process_department_feedback(sess["dept"], user_text, user_name)
-        await safe_answer(message, reply, reply_markup=get_exit_keyboard())
+
+        prefix = f"🎤 *Ovozli xabaringiz eshitildi va tahlil qilindi:* _{user_text}_\n\n---\n" if is_voice else ""
+        await safe_answer(message, prefix + reply, reply_markup=get_exit_keyboard())
         return
 
     # 3. Yangi bo'lim kalit so'zi kiritilgan bo'lsa
@@ -1103,12 +1182,13 @@ async def private_message_handler(message: types.Message):
         }
         dept_info = DEPARTMENTS[dept_key]
         await safe_answer(message, dept_info["welcome"], reply_markup=get_exit_keyboard())
-        
-        # Agar kalit so'z bilan birga darhol ma'lumot ham yozilgan bo'lsa
+
+        # Agar kalit so'z bilan birga darhol ma'lumot ham berilgan bo'lsa
         if remaining_text:
             await bot.send_chat_action(message.chat.id, "typing")
             reply = await process_department_feedback(dept_key, remaining_text, user_name)
-            await safe_answer(message, reply, reply_markup=get_exit_keyboard())
+            prefix = f"🎤 *Ovozli xabaringiz matni:* _{remaining_text}_\n\n---\n" if is_voice else ""
+            await safe_answer(message, prefix + reply, reply_markup=get_exit_keyboard())
         return
 
     # /help yoki yordam so'ralganda
@@ -1122,15 +1202,15 @@ async def private_message_handler(message: types.Message):
             "• 1-11 sinflarga qabul tartibi va imtihonlar\n"
             "• 100% sog'lom nutritsiologik ovqatlanish\n"
             "• STEM, to'garaklar va Muhammadali Eshonqulov tarbiya metodikasi\n\n"
+            "🎙 *Ovozli xabar:* Menga bemalol ovozli xabar yuborishingiz mumkin, barchasini tushunaman!\n"
             "🏢 *Maktab bo'limlari bilan ishlash:* `/bolimlar` yoki `#oquv`, `#moliya`, `#kadrlar`, `#koordinatorlar`\n\n"
-            "Savolingizni shunchaki xabar sifatida yozsangiz kifoya!"
+            "Savolingizni shunchaki xabar sifatida yozsangiz yoki ovozli yuborsangiz kifoya!"
         )
         return
 
     # Admin kalit so'zlari bo'lsa o'tkazib yuborish
     if user_text.startswith("#"):
         return
-
 
     # Telefon raqam mavjudligini tekshirish va avtomatik lead sifatida saqlash hamda adminga bildirish
     detected_phone = extract_phone(user_text)
@@ -1151,7 +1231,9 @@ async def private_message_handler(message: types.Message):
     reply = await ask_ai(user_conversations[user_id])
     update_user_history(user_id, genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)]))
 
-    await safe_answer(message, reply)
+    prefix = f"🎤 *Ovozli savolingiz:* _{user_text}_\n\n" if is_voice else ""
+    await safe_answer(message, prefix + reply)
+
 
 from aiohttp import web, ClientSession, TCPConnector
 
