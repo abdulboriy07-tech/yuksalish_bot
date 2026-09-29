@@ -20,6 +20,16 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Admin ID lari (vergul bilan ajratilgan, masalan: ADMIN_IDS=1234567,9876543)
+ADMIN_IDS_RAW = os.getenv("ADMIN_IDS", "")
+ADMIN_IDS = set(int(x.strip()) for x in ADMIN_IDS_RAW.split(",") if x.strip().isdigit())
+
+def is_admin(user_id: int) -> bool:
+    """Admin huquqini tekshirish (agar ADMIN_IDS bo'sh bo'lsa, ochiq turadi)"""
+    if not ADMIN_IDS:
+        return True
+    return user_id in ADMIN_IDS
+
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN .env faylida topilmadi!")
 
@@ -37,6 +47,8 @@ BASE_DIR = os.path.dirname(__file__)
 KB_FILE_PATH = os.path.join(BASE_DIR, "knowledge_base.txt")
 LEADS_FILE_PATH = os.path.join(BASE_DIR, "leads.json")
 
+leads_lock = asyncio.Lock()
+
 def load_knowledge_base() -> str:
     """Bilimlar bazasi faylidan ma'lumotlarni o'qish"""
     if os.path.exists(KB_FILE_PATH):
@@ -49,42 +61,54 @@ def save_knowledge_base(content: str) -> None:
     with open(KB_FILE_PATH, "w", encoding="utf-8") as f:
         f.write(content.strip())
 
-def save_lead(user: types.User, phone: str = "", note: str = ""):
-    """Ota-onalarning kontaktlarini leads.json ga saqlash"""
-    leads = []
-    if os.path.exists(LEADS_FILE_PATH):
+async def save_lead(user: types.User, phone: str = "", note: str = "") -> dict:
+    """Ota-onalarning kontaktlarini leads.json ga asinxron va xavfsiz saqlash"""
+    async with leads_lock:
+        leads = []
+        if os.path.exists(LEADS_FILE_PATH):
+            try:
+                with open(LEADS_FILE_PATH, "r", encoding="utf-8") as f:
+                    leads = json.load(f)
+            except Exception:
+                leads = []
+
+        lead_entry = {
+            "user_id": user.id,
+            "first_name": user.first_name or "",
+            "last_name": user.last_name or "",
+            "username": f"@{user.username}" if user.username else "mavjud emas",
+            "phone": phone,
+            "note": note,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        updated = False
+        for l in leads:
+            if l.get("user_id") == user.id and (not phone or l.get("phone") == phone):
+                if phone:
+                    l["phone"] = phone
+                if note:
+                    l["note"] = (l.get("note", "") + " | " + note).strip(" |")
+                updated = True
+                break
+        
+        if not updated:
+            leads.append(lead_entry)
+
+        with open(LEADS_FILE_PATH, "w", encoding="utf-8") as f:
+            json.dump(leads, f, ensure_ascii=False, indent=2)
+
+        return lead_entry
+
+async def notify_admins(text: str):
+    """Adminlarga Telegram orqali bildirishnoma yuborish"""
+    if not ADMIN_IDS:
+        return
+    for admin_id in ADMIN_IDS:
         try:
-            with open(LEADS_FILE_PATH, "r", encoding="utf-8") as f:
-                leads = json.load(f)
-        except Exception:
-            leads = []
-
-    lead_entry = {
-        "user_id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name or "",
-        "username": f"@{user.username}" if user.username else "mavjud emas",
-        "phone": phone,
-        "note": note,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
-    
-    # Agar shu foydalanuvchining bu raqami mavjud bo'lsa yangilaymiz, bo'lmasa qo'shamiz
-    updated = False
-    for l in leads:
-        if l.get("user_id") == user.id and (not phone or l.get("phone") == phone):
-            if phone:
-                l["phone"] = phone
-            if note:
-                l["note"] = (l.get("note", "") + " | " + note).strip(" |")
-            updated = True
-            break
-    
-    if not updated:
-        leads.append(lead_entry)
-
-    with open(LEADS_FILE_PATH, "w", encoding="utf-8") as f:
-        json.dump(leads, f, ensure_ascii=False, indent=2)
+            await bot.send_message(admin_id, text, parse_mode=ParseMode.MARKDOWN)
+        except Exception as e:
+            logging.warning(f"Adminga bildirishnoma yuborishda xatolik ({admin_id}): {e}")
 
 def extract_phone(text: str) -> str:
     """Matndan telefon raqamini aniqlash"""
@@ -95,8 +119,31 @@ def extract_phone(text: str) -> str:
 
 CURRENT_KB = load_knowledge_base()
 
-# Foydalanuvchilar bilan suhbatlar tarixi (Kontekstni saqlash)
+# Foydalanuvchilar suhbat tarixi va xotirani boshqarish
 user_conversations: dict[int, list[genai_types.Content]] = {}
+user_last_active: dict[int, float] = {}
+
+def update_user_history(user_id: int, content: genai_types.Content):
+    """Foydalanuvchi suhbat tarixini yangilash va xotirani avtomatik tozalash"""
+    now = time.time()
+    user_last_active[user_id] = now
+    
+    if user_id not in user_conversations:
+        user_conversations[user_id] = []
+        
+    user_conversations[user_id].append(content)
+    
+    # Kontekst uzunligini me'yorda ushlash (oxirgi 12 ta xabar)
+    if len(user_conversations[user_id]) > 12:
+        user_conversations[user_id] = user_conversations[user_id][-12:]
+        
+    # Xotirada 200 dan ortiq foydalanuvchi yig'ilsa, 3 soatdan ortiq kirmaganlarni tozalash
+    if len(user_conversations) > 200:
+        cutoff = now - 10800  # 3 soat
+        inactive = [uid for uid, t in user_last_active.items() if t < cutoff]
+        for uid in inactive:
+            user_conversations.pop(uid, None)
+            user_last_active.pop(uid, None)
 
 def get_system_instruction() -> str:
     """Aisha — 'Yuksalish Maktabi'ning yetakchi ta'lim maslahatchisi tizimli ko'rsatmasi"""
@@ -198,7 +245,7 @@ def to_openai_messages(system_instruction: str, contents) -> list:
 
 
 async def ask_ai(contents) -> str:
-    """Multi-LLM (ChatGPT + Gemini) tezkor va ishonchli javob olish tizimi"""
+    """Multi-LLM (ChatGPT + Gemini) tezkor, timeoutli va ishonchli javob olish tizimi"""
     global openai_disabled_until
     system_instruction = get_system_instruction()
 
@@ -206,11 +253,14 @@ async def ask_ai(contents) -> str:
     if openai_client and time.time() > openai_disabled_until:
         try:
             openai_msgs = to_openai_messages(system_instruction, contents)
-            response = await asyncio.to_thread(
-                openai_client.chat.completions.create,
-                model="gpt-4o-mini",
-                messages=openai_msgs,
-                temperature=0.65,
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    openai_client.chat.completions.create,
+                    model="gpt-4o-mini",
+                    messages=openai_msgs,
+                    temperature=0.65,
+                ),
+                timeout=15.0
             )
             if response and response.choices and response.choices[0].message.content:
                 return response.choices[0].message.content
@@ -223,14 +273,17 @@ async def ask_ai(contents) -> str:
         models_to_try = ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
         for model_name in models_to_try:
             try:
-                response = await asyncio.to_thread(
-                    gemini_client.models.generate_content,
-                    model=model_name,
-                    contents=contents,
-                    config=genai_types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.65,
+                response = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        gemini_client.models.generate_content,
+                        model=model_name,
+                        contents=contents,
+                        config=genai_types.GenerateContentConfig(
+                            system_instruction=system_instruction,
+                            temperature=0.65,
+                        ),
                     ),
+                    timeout=20.0
                 )
                 if response and response.text:
                     return response.text
@@ -241,19 +294,23 @@ async def ask_ai(contents) -> str:
 
 
 async def safe_reply(message: types.Message, text: str):
-    """Xavfsiz javob yuborish (Markdown xato bo'lsa oddiy matnda yuboradi)"""
-    try:
-        await message.reply(text, parse_mode=ParseMode.MARKDOWN)
-    except Exception:
-        await message.reply(text, parse_mode=None)
+    """Xavfsiz javob yuborish (uzun matnlarni avtomatik bo'laklab yuboradi)"""
+    chunks = [text[i:i+4000] for i in range(0, len(text), 4000)] if len(text) > 4000 else [text]
+    for chunk in chunks:
+        try:
+            await message.reply(chunk, parse_mode=ParseMode.MARKDOWN)
+        except Exception:
+            await message.reply(chunk, parse_mode=None)
 
 
 async def safe_answer(message: types.Message, text: str, reply_markup=None):
-    """Xavfsiz xabar yuborish"""
-    try:
-        await message.answer(text, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
-    except Exception:
-        await message.answer(text, parse_mode=None, reply_markup=reply_markup)
+    """Xavfsiz xabar yuborish (uzun matnlarni avtomatik bo'laklab yuboradi)"""
+    chunks = [text[i:i+4000] for i in range(0, len(text), 4000)] if len(text) > 4000 else [text]
+    for chunk in chunks:
+        try:
+            await message.answer(chunk, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
+        except Exception:
+            await message.answer(chunk, parse_mode=None, reply_markup=reply_markup)
 
 
 @dp.message(CommandStart())
@@ -264,9 +321,8 @@ async def start_handler(message: types.Message):
         "Farzandingizning ta'limi, maktabimizdagi sharoitlar, oylik to'lov yoki filiallarimiz bo'yicha har qanday savolingizga bajonidil yordam beraman.\n\n"
         "Farzandingiz nechanchi sinfga boradi yoki sizni qaysi filialimiz qiziqtiryapti?"
     )
-    user_conversations[message.from_user.id] = [
-        genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=greeting)])
-    ]
+    user_conversations[message.from_user.id] = []
+    update_user_history(message.from_user.id, genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=greeting)]))
     await safe_answer(message, greeting)
 
 
@@ -274,7 +330,11 @@ async def start_handler(message: types.Message):
 
 @dp.message(F.chat.type == "private", Command("leads"))
 async def leads_handler(message: types.Message):
-    """Ro'yxatdan o'tgan ota-onalar (Leadlar) ro'yxatini ko'rish"""
+    """Ro'yxatdan o'tgan ota-onalar (Leadlar) ro'yxatini ko'rish (Faqat admin uchun)"""
+    if not is_admin(message.from_user.id):
+        await message.answer("⚠️ Bu buyruq faqat maktab ma'muriyati uchun ruxsat etilgan!")
+        return
+
     if not os.path.exists(LEADS_FILE_PATH):
         await message.answer("📂 Hozircha yangi leadlar mavjud emas.")
         return
@@ -304,7 +364,11 @@ async def leads_handler(message: types.Message):
 
 @dp.message(F.chat.type == "private", Command("baza"))
 async def baza_help_handler(message: types.Message):
-    """Bilimlar bazasini boshqarish bo'yicha yo'riqnoma"""
+    """Bilimlar bazasini boshqarish bo'yicha yo'riqnoma (Faqat admin uchun)"""
+    if not is_admin(message.from_user.id):
+        await message.answer("⚠️ Bu buyruq faqat maktab ma'muriyati uchun ruxsat etilgan!")
+        return
+
     text = (
         "🛠 *Bilimlar bazasini boshqarish kalit so'zlari (Faqat shaxsiy chatda):*\n\n"
         "1. `#baza_yangilash` — mavjud bazani butunlay yangi matn bilan almashtirish.\n"
@@ -319,7 +383,10 @@ async def baza_help_handler(message: types.Message):
 
 @dp.message(F.chat.type == "private", F.text.startswith("#baza_yangilash"))
 async def update_kb_handler(message: types.Message):
-    """Bazani to'liq yangilash"""
+    """Bazani to'liq yangilash (Faqat admin uchun)"""
+    if not is_admin(message.from_user.id):
+        return
+
     global CURRENT_KB
     new_text = message.text.replace("#baza_yangilash", "").strip()
     if not new_text:
@@ -333,7 +400,10 @@ async def update_kb_handler(message: types.Message):
 
 @dp.message(F.chat.type == "private", F.text.startswith("#baza_qoshish"))
 async def append_kb_handler(message: types.Message):
-    """Mavjud bazaga yangi ma'lumot qo'shish"""
+    """Mavjud bazaga yangi ma'lumot qo'shish (Faqat admin uchun)"""
+    if not is_admin(message.from_user.id):
+        return
+
     global CURRENT_KB
     additional_text = message.text.replace("#baza_qoshish", "").strip()
     if not additional_text:
@@ -348,12 +418,12 @@ async def append_kb_handler(message: types.Message):
 
 @dp.message(F.chat.type == "private", F.text == "#baza_korish")
 async def view_kb_handler(message: types.Message):
-    """Mavjud bazani ko'rish"""
+    """Mavjud bazani ko'rish (Faqat admin uchun)"""
+    if not is_admin(message.from_user.id):
+        return
+
     text = f"📋 *Hozirgi bilimlar bazasi:*\n\n{CURRENT_KB}"
-    if len(text) > 4000:
-        await safe_answer(message, text[:4000] + "\n...(davomi bor)")
-    else:
-        await safe_answer(message, text)
+    await safe_answer(message, text)
 
 
 # ------------------ TELEFON KONTAKTI YUBORILGANDA ------------------
@@ -365,23 +435,21 @@ async def contact_handler(message: types.Message):
     if not phone.startswith("+"):
         phone = "+" + phone
 
-    save_lead(message.from_user, phone=phone, note="Telegram contact orqali yuborildi")
+    await save_lead(message.from_user, phone=phone, note="Telegram contact tugmasi orqali")
+    asyncio.create_task(notify_admins(
+        f"🔔 *Yangi ota-ona kontaktdan ro'yxatdan o'tdi!*\n\n"
+        f"👤 Ism: {message.from_user.full_name}\n"
+        f"📞 Tel: `{phone}`\n"
+        f"💬 Telegram: @{message.from_user.username or 'mavjud emas'}\n"
+        f"🕒 Vaqt: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    ))
 
-    # Suhbat tarixiga qo'shish
     user_id = message.from_user.id
-    if user_id not in user_conversations:
-        user_conversations[user_id] = []
-    
-    user_conversations[user_id].append(
-        genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=f"Telefon raqamim: {phone}")])
-    )
+    update_user_history(user_id, genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=f"Telefon raqamim: {phone}")]))
 
     await bot.send_chat_action(message.chat.id, "typing")
     reply = await ask_ai(user_conversations[user_id])
-    
-    user_conversations[user_id].append(
-        genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)])
-    )
+    update_user_history(user_id, genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)]))
 
     await safe_answer(message, reply)
 
@@ -398,7 +466,7 @@ async def group_message_handler(message: types.Message, bot: Bot):
         message.reply_to_message 
         and message.reply_to_message.from_user.id == bot_info.id
     )
-    is_mentioned = message.text and bot_username.lower() in message.text.lower()
+    is_mentioned = (message.text or message.caption) and bot_username.lower() in (message.text or message.caption or "").lower()
 
     if is_reply_to_bot or is_mentioned:
         raw_text = message.text or message.caption or ""
@@ -436,29 +504,25 @@ async def private_message_handler(message: types.Message):
         return
 
     user_id = message.from_user.id
-    if user_id not in user_conversations:
-        user_conversations[user_id] = []
 
-    # Telefon raqam mavjudligini tekshirish va avtomatik lead sifatida saqlash
+    # Telefon raqam mavjudligini tekshirish va avtomatik lead sifatida saqlash hamda adminga bildirish
     detected_phone = extract_phone(user_text)
     if detected_phone:
-        save_lead(message.from_user, phone=detected_phone, note=f"Xabardan olindi: {user_text[:50]}")
+        await save_lead(message.from_user, phone=detected_phone, note=f"Xabardan olindi: {user_text[:50]}")
+        asyncio.create_task(notify_admins(
+            f"🔔 *Yangi ota-ona ma'lumoti olindi!*\n\n"
+            f"👤 Ism: {message.from_user.full_name}\n"
+            f"📞 Tel: `{detected_phone}`\n"
+            f"💬 Telegram: @{message.from_user.username or 'mavjud emas'}\n"
+            f"📝 Xabar: _{user_text[:100]}_\n"
+            f"🕒 Vaqt: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        ))
 
-    # Foydalanuvchi xabarini tarixga qo'shish
-    user_conversations[user_id].append(
-        genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=user_text)])
-    )
-
-    if len(user_conversations[user_id]) > 16:
-        user_conversations[user_id] = user_conversations[user_id][-16:]
+    update_user_history(user_id, genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=user_text)]))
 
     await bot.send_chat_action(message.chat.id, "typing")
     reply = await ask_ai(user_conversations[user_id])
-
-    # Model javobini tarixga qo'shish
-    user_conversations[user_id].append(
-        genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)])
-    )
+    update_user_history(user_id, genai_types.Content(role="model", parts=[genai_types.Part.from_text(text=reply)]))
 
     await safe_answer(message, reply)
 
