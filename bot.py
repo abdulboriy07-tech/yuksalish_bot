@@ -1061,7 +1061,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 1,
         "topic": "Narx va uning qiymati (Value framing)",
-        "question": "Oylik 5 300 000 so‘m o‘qish uchun juda qimmat-ku! Nega bunchalik qimmat va bu to‘lov ichiga aniq nimalar kiradi?",
+        "question": (
+            "Men qorovulman, oyiga 2-3 million ishlayman. Bolam o'qishini juda xohlayapman, "
+            "lekin 5 million 300 mingni qayerdan topaman? Siz bilan gaplashayotganimning o'zi bema'ni emasmi? "
+            "Boshqa oddiy maktablar ham bor-ku, nima uchun shuncha pul beraman sizga?"
+        ),
         "criteria": (
             "Kutilgan javob: Value framing tamoyili — to'liq kunlik (08:30–17:30) xavfsiz muhit, "
             "repetitorga ehtiyoj qoldirmaydigan chuqurlashtirilgan ta'lim va chet tillari, 3 mahal nutritsiologik sog'lom ovqatlanish, "
@@ -1073,7 +1077,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 2,
         "topic": "Chegirmalar va stipendiyalar siyosati",
-        "question": "A'lochi o'quvchilarga qanday chegirmalar yoki stipendiyalar bor? Yoki bir nechta farzandim o'qisa-chi?",
+        "question": (
+            "Qizim juda zo'r o'qiydi, maktabda hamisha birinchi. Sizning maktabingizga kelsak, "
+            "a'lochilarga hech qanday chegirma yo'qmi? Ikki farzandimni birga bermoqchiman, "
+            "ikkisiga bitta to'lov qilsa bo'ladimi? Yoki stipendiya, grant kabi imkoniyatlar bormi?"
+        ),
         "criteria": (
             "Kutilgan javob: QAT'IY QOIDA — FAQAT oilaviy chegirmalar (2 ta farzandga 5%, 3 ta va undan ortiq farzandga 10%) aytilishi shart. "
             "Choraklik stipendiyalar (45%, 35%, 25%, 15%), 50% yoki 100% grantlar hali rasman tasdiqlanmagani uchun "
@@ -1083,7 +1091,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 3,
         "topic": "100% sog'lom ovqatlanish falsafasi",
-        "question": "Maktabda bolalarga qanday ovqatlar beriladi? Shirinliklar, gazli suvlar yoki oq non bormi? Nega har 2 soatda emas, oraliq bilan ovqatlantiriladi?",
+        "question": (
+            "O'g'limni shifokor qand kasalligiga moyil dedi, shirinlik yesa bo'lmaydi. "
+            "Maktabda tushlikka nima berasizlar? Bolalar chipsmi, sharbatmi yeyishayaptimi? "
+            "Mening bolam uchun alohida ovqat qilasizlarmi yoki hammaga bir xilmi?"
+        ),
         "criteria": (
             "Kutilgan javob: Bosh dietolog Mavjuda ustoz tomonidan JSST (VOZ) va O'zbekiston SSV standartlari asosida ishlab chiqilgan yillik ratsion. "
             "100% oq unsiz va shakarsiz, margarin, palma yog'i, sun'iy qo'shimchalar, kolbasa va fastfud mutlaqo taqiqlangan. "
@@ -1094,7 +1106,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 4,
         "topic": "Tarbiya tizimi va telefon qaramligi",
-        "question": "O‘g‘lim juda sho‘x, dars qilishni xohlamaydi va telefonga qaram bo‘lib qolgan. Maktabingizda bu bilan qanday ishlaysizlar?",
+        "question": (
+            "O'g'lim 13 yoshda, kechasi 2-3 gacha telefon ko'rib yotadi, ertalab uyg'ota olmayman. "
+            "Dars qilishni umuman xohlamaydi. Uraman, so'kaman — hech nima o'zgarmaydi. "
+            "Maktabingizga bersam shu muammoni hal qila olasizlarmi, yoki u yerda ham shunday bo'lib ketaversa-chi?"
+        ),
         "criteria": (
             "Kutilgan javob: Muhammadali Eshonqulov tarbiya metodikasi — bolani jazolash yoki telefonni tortib olish emas: "
             "ertalabki badantarbiya/yugurish orqali energiyani foydali yo'naltirish, 'Qancha kitob o'qisang, shuncha vaqt telefon seniki' qoidasi, "
@@ -1104,7 +1120,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 5,
         "topic": "Ta'lim tili strategiyasi va xorijiy tillar",
-        "question": "Nega maktabingizda ta'lim faqat o'zbek tilida? Rus yoki ingliz sinflaringiz bormi? Chet tillari qanday o'rgatiladi?",
+        "question": (
+            "Aka, men bolani xorijga yubormoqchiman katta bo'lganda. "
+            "Sizda o'zbekcha o'qitiladi deyishdi — bu to'g'rimi? Ingliz tilini qanchalik yaxshi bilishadi? "
+            "O'zbekcha ta'lim olgan bola xorijda nima qiladi, ortda qolmaydimi?"
+        ),
         "criteria": (
             "Kutilgan javob: Mustafo Cho'qay hikmati: 'Inson ta'limni qaysi tilda olsa, o'sha til davlatiga butun umr xizmat qiladi'. "
             "O'zbekiston manfaatini o'ylaydigan fidoyi milliy liderlarni tarbiyalash. Ilmni original manbasidan o'rganish uchun esa "
@@ -1114,7 +1134,10 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 6,
         "topic": "Filiallar va aloqa tartibi",
-        "question": "Samarqandda filialingiz bormi? Manzili qayerda va qaysi raqamga bog'lansak bo'ladi?",
+        "question": (
+            "Biz Samarqandda yashaymiz. Sizning maktab Toshkentda ekan, lekin Samarqandda ham bor degan gap eshitdim. "
+            "To'g'rimi? Qaysi manzilda va qaysi raqamga qo'ng'iroq qilsam bo'ladi?"
+        ),
         "criteria": (
             "Kutilgan javob: Samarqand shahrida filialimiz bor (shuningdek Toshkentda ham Samarqand darvoza filiali bor). "
             "Qat'iy tartib: birinchi o'rinda Bosh ofis yagona raqami: +998 55 055 06 00 beriladi. "
@@ -1124,7 +1147,11 @@ OPERATOR_TEST_QUESTIONS = [
     {
         "id": 7,
         "topic": "Dunyoviy ta'lim standarti",
-        "question": "Maktabingizda namoz o'qitiladimi yoki islomiy ta'lim beriladimi?",
+        "question": (
+            "Xotinim dindor, bolaga diniy tarbiya berilmasa maktabga qo'ymayman deyapti. "
+            "Maktabingizda diniy ta'lim, qur'on yoki odobli bolalar uchun maxsus darslar bormi? "
+            "Xotinimni qanday ko'ndiraman, unga nima desam bo'ladi?"
+        ),
         "criteria": (
             "Kutilgan javob: 100% dunyoviy ta'lim standarti. Maktabimiz Maktabgacha va maktab ta'limi vazirligi litsenziyasiga ega zamonaviy dunyoviy ta'lim muassasasi. "
             "Diniy atamalarni (namoz, diniy, ibodat kabilarni) inkor shaklida ham takrorlamasdan, davlat ta'lim standartlari, "
