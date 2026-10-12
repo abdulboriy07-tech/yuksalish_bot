@@ -1062,9 +1062,11 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 1,
         "topic": "Narx va uning qiymati (Value framing)",
         "question": (
-            "Men qorovulman, oyiga 2-3 million ishlayman. Bolam o'qishini juda xohlayapman, "
-            "lekin 5 million 300 mingni qayerdan topaman? Siz bilan gaplashayotganimning o'zi bema'ni emasmi? "
-            "Boshqa oddiy maktablar ham bor-ku, nima uchun shuncha pul beraman sizga?"
+            "To'g'risi, juda ikkilanib turibman... Maktabingizni rosa maqtashdi, havasim keldi. "
+            "Lekin 5 million 300 ming so'm bizning oilamiz uchun ancha jiddiy pul. "
+            "Boshqa xususiy maktablar 3-3.5 million deyapti. Farzandim uchun shuncha xarajat qilib, "
+            "oxirida oddiy maktabdan farqi bo'lmay qolishidan qo'rqaman. "
+            "Bu to'lov ichiga rostdan ham arzigulik narsalar kiradimi o'zi? Meni bir ko'nglimni xotirjam qiling..."
         ),
         "criteria": (
             "Kutilgan javob: Value framing tamoyili — to'liq kunlik (08:30–17:30) xavfsiz muhit, "
@@ -1078,9 +1080,10 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 2,
         "topic": "Chegirmalar va stipendiyalar siyosati",
         "question": (
-            "Qizim juda zo'r o'qiydi, maktabda hamisha birinchi. Sizning maktabingizga kelsak, "
-            "a'lochilarga hech qanday chegirma yo'qmi? Ikki farzandimni birga bermoqchiman, "
-            "ikkisiga bitta to'lov qilsa bo'ladimi? Yoki stipendiya, grant kabi imkoniyatlar bormi?"
+            "Ikkita farzandim bor, ikkisini ham bermoqchiman, lekin to'lov ancha og'irlik qilarmikan deb ikkilanib o'tiribman. "
+            "Kattasi o'zi maktabida a'lochi bola, olimpiadalarga chiqadi. "
+            "Ikki bolaga biror yengillik yoki a'lochiligi uchun stipendiya, grant bormi? "
+            "Bo'lmasa ikkalasini berishga yuragim dov bermayapti, bittasini berib bittasini qoldiray desam ko'nglim bo'lmayapti..."
         ),
         "criteria": (
             "Kutilgan javob: QAT'IY QOIDA — FAQAT oilaviy chegirmalar (2 ta farzandga 5%, 3 ta va undan ortiq farzandga 10%) aytilishi shart. "
@@ -1092,9 +1095,10 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 3,
         "topic": "100% sog'lom ovqatlanish falsafasi",
         "question": (
-            "O'g'limni shifokor qand kasalligiga moyil dedi, shirinlik yesa bo'lmaydi. "
-            "Maktabda tushlikka nima berasizlar? Bolalar chipsmi, sharbatmi yeyishayaptimi? "
-            "Mening bolam uchun alohida ovqat qilasizlarmi yoki hammaga bir xilmi?"
+            "Ovqatlanish masalasida ancha boshim qotgan... Oq un, shakar mutlaqo yo'q, 4 soatlik oraliq bilan beriladi deb eshitdim. "
+            "Bolam o'zi uyda injiq, har narsani yemaydi, birdan bunday ovqatga o'rgansa och qolib ketmaydimi? "
+            "Kuni bo'yi (17:30 gacha) maktabda bo'lsa, qorni ochib madorsiz bo'lib qolmasmikan? "
+            "Qanday qilib bolani bunday taomlarga ko'niktirasizlar, o'zi to'yib yuradimi?"
         ),
         "criteria": (
             "Kutilgan javob: Bosh dietolog Mavjuda ustoz tomonidan JSST (VOZ) va O'zbekiston SSV standartlari asosida ishlab chiqilgan yillik ratsion. "
@@ -1107,9 +1111,10 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 4,
         "topic": "Tarbiya tizimi va telefon qaramligi",
         "question": (
-            "O'g'lim 13 yoshda, kechasi 2-3 gacha telefon ko'rib yotadi, ertalab uyg'ota olmayman. "
-            "Dars qilishni umuman xohlamaydi. Uraman, so'kaman — hech nima o'zgarmaydi. "
-            "Maktabingizga bersam shu muammoni hal qila olasizlarmi, yoki u yerda ham shunday bo'lib ketaversa-chi?"
+            "O'g'lim 13 yoshda, dars qilishni umuman xohlamaydi, telefondan boshini uzolmay qolgan. "
+            "Xususiy maktabga bersam ham shunday bo'lib qoladimi, pulim havoga ketadimi deb juda ikkilanyapman. "
+            "Sizlar bolani telefondan qanday qilib chalg'itasizlar? "
+            "Majburlab tortib olmasdan, rostdan ham to'g'irlashning iloji bormi?"
         ),
         "criteria": (
             "Kutilgan javob: Muhammadali Eshonqulov tarbiya metodikasi — bolani jazolash yoki telefonni tortib olish emas: "
@@ -1121,9 +1126,10 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 5,
         "topic": "Ta'lim tili strategiyasi va xorijiy tillar",
         "question": (
-            "Aka, men bolani xorijga yubormoqchiman katta bo'lganda. "
-            "Sizda o'zbekcha o'qitiladi deyishdi — bu to'g'rimi? Ingliz tilini qanchalik yaxshi bilishadi? "
-            "O'zbekcha ta'lim olgan bola xorijda nima qiladi, ortda qolmaydimi?"
+            "Biz bolamiz kelajakda nufuzli xorijiy universitetlarda o'qishini xohlaymiz. "
+            "Lekin maktabingizda darslar asosan o'zbek tilida ekanini eshitib ancha ikkilanib qoldim. "
+            "O'zbekcha ta'lim olsa, ertaga xalqaro imtihonlarda, chet elga topshirganda qiynalib qolmaydimi? "
+            "Tillar qay darajada o'rgatiladi o'zi?"
         ),
         "criteria": (
             "Kutilgan javob: Mustafo Cho'qay hikmati: 'Inson ta'limni qaysi tilda olsa, o'sha til davlatiga butun umr xizmat qiladi'. "
@@ -1135,8 +1141,9 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 6,
         "topic": "Filiallar va aloqa tartibi",
         "question": (
-            "Biz Samarqandda yashaymiz. Sizning maktab Toshkentda ekan, lekin Samarqandda ham bor degan gap eshitdim. "
-            "To'g'rimi? Qaysi manzilda va qaysi raqamga qo'ng'iroq qilsam bo'ladi?"
+            "Biz Samarqandda yashaymiz. Yuksalish maktabining Toshkentdagi natijalarini ko'rib, havas qilgandik. "
+            "Samarqandda ham ochildi deb eshitdim, lekin yangi filial bo'lsa, Toshkentdagidek sifat bo'larmikan yoki hali kamchiliklari ko'pmikan deb ikkilanib turibmiz. "
+            "Samarqandda aniq qayerda joylashgan va kimdan to'liq ma'lumot olsak bo'ladi?"
         ),
         "criteria": (
             "Kutilgan javob: Samarqand shahrida filialimiz bor (shuningdek Toshkentda ham Samarqand darvoza filiali bor). "
@@ -1148,9 +1155,10 @@ OPERATOR_TEST_QUESTIONS = [
         "id": 7,
         "topic": "Dunyoviy ta'lim standarti",
         "question": (
-            "Xotinim dindor, bolaga diniy tarbiya berilmasa maktabga qo'ymayman deyapti. "
-            "Maktabingizda diniy ta'lim, qur'on yoki odobli bolalar uchun maxsus darslar bormi? "
-            "Xotinimni qanday ko'ndiraman, unga nima desam bo'ladi?"
+            "Oilamizda tarbiya, odob-axloq eng birinchi o'rinda turadi. "
+            "Uyidagilar: 'Hozirgi zamonaviy maktablarda bolalar erkinlashib, o'zbekona tarbiyadan chiqib ketadi' deb ancha qarshilik qilishyapti, men esa ikkilanib turibman. "
+            "Sizlarda bolalarning odob-axloqi, insoniy fazilatlari qanday nazorat qilinadi? "
+            "Tarbiya masalasida ko'nglim to'q bo'lsa bo'ladimi?"
         ),
         "criteria": (
             "Kutilgan javob: 100% dunyoviy ta'lim standarti. Maktabimiz Maktabgacha va maktab ta'limi vazirligi litsenziyasiga ega zamonaviy dunyoviy ta'lim muassasasi. "
