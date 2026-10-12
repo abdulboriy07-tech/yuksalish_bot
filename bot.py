@@ -21,9 +21,13 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# Rahbar (Supervisor) ID raqami
+SUPERVISOR_ID = 7218435130
+
 # Admin ID lari (vergul bilan ajratilgan, masalan: ADMIN_IDS=1234567,9876543)
 ADMIN_IDS_RAW = os.getenv("ADMIN_IDS", "")
 ADMIN_IDS = set(int(x.strip()) for x in ADMIN_IDS_RAW.split(",") if x.strip().isdigit())
+ADMIN_IDS.add(SUPERVISOR_ID)
 
 def is_admin(user_id: int) -> bool:
     """Admin huquqini tekshirish (agar ADMIN_IDS bo'sh bo'lsa, ochiq turadi)"""
@@ -1051,6 +1055,298 @@ async def dept_callback_handler(callback: types.CallbackQuery):
     await callback.answer()
 
 
+# ------------------ SOTUVCHILAR TEST SINOVI TIZIMI ------------------
+
+OPERATOR_TEST_QUESTIONS = [
+    {
+        "id": 1,
+        "topic": "Narx va uning qiymati (Value framing)",
+        "question": "Oylik 5 300 000 so‘m o‘qish uchun juda qimmat-ku! Nega bunchalik qimmat va bu to‘lov ichiga aniq nimalar kiradi?",
+        "criteria": (
+            "Kutilgan javob: Value framing tamoyili — to'liq kunlik (08:30–17:30) xavfsiz muhit, "
+            "repetitorga ehtiyoj qoldirmaydigan chuqurlashtirilgan ta'lim va chet tillari, 3 mahal nutritsiologik sog'lom ovqatlanish, "
+            "shanba kungi bepul IT/STEM va zamonaviy kasblar to'garaklari kiritilgani. "
+            "Oddiy maktabdagi bola repetitorlar, ovqat va to'garaklar uchun ham oyiga 3-4 mln so'm sarflashini "
+            "hamda bu yerda Muhammadali Eshonqulov tarbiya metodikasi borligini tushuntirish."
+        )
+    },
+    {
+        "id": 2,
+        "topic": "Chegirmalar va stipendiyalar siyosati",
+        "question": "A'lochi o'quvchilarga qanday chegirmalar yoki stipendiyalar bor? Yoki bir nechta farzandim o'qisa-chi?",
+        "criteria": (
+            "Kutilgan javob: QAT'IY QOIDA — FAQAT oilaviy chegirmalar (2 ta farzandga 5%, 3 ta va undan ortiq farzandga 10%) aytilishi shart. "
+            "Choraklik stipendiyalar (45%, 35%, 25%, 15%), 50% yoki 100% grantlar hali rasman tasdiqlanmagani uchun "
+            "mijozlarga ular haqida gapirish qat'iyan taqiqlangan! Operator boshqa chegirma yo'qligini, faqat oilaviy chegirma borligini aytishi shart."
+        )
+    },
+    {
+        "id": 3,
+        "topic": "100% sog'lom ovqatlanish falsafasi",
+        "question": "Maktabda bolalarga qanday ovqatlar beriladi? Shirinliklar, gazli suvlar yoki oq non bormi? Nega har 2 soatda emas, oraliq bilan ovqatlantiriladi?",
+        "criteria": (
+            "Kutilgan javob: Bosh dietolog Mavjuda ustoz tomonidan JSST (VOZ) va O'zbekiston SSV standartlari asosida ishlab chiqilgan yillik ratsion. "
+            "100% oq unsiz va shakarsiz, margarin, palma yog'i, sun'iy qo'shimchalar, kolbasa va fastfud mutlaqo taqiqlangan. "
+            "3 mahal: Nonushta, Tushlik, Tolmachoy (kechki oilaviy ovqatga ishtahani bo'g'maslik uchun sog'lom pishiriq). "
+            "Ketma-ket ovqatlanish hazmga energiya olib bolani lanj qilishi, darsda diqqatni pasaytirishi sababli 4 soatlik oraliq belgilangan."
+        )
+    },
+    {
+        "id": 4,
+        "topic": "Tarbiya tizimi va telefon qaramligi",
+        "question": "O‘g‘lim juda sho‘x, dars qilishni xohlamaydi va telefonga qaram bo‘lib qolgan. Maktabingizda bu bilan qanday ishlaysizlar?",
+        "criteria": (
+            "Kutilgan javob: Muhammadali Eshonqulov tarbiya metodikasi — bolani jazolash yoki telefonni tortib olish emas: "
+            "ertalabki badantarbiya/yugurish orqali energiyani foydali yo'naltirish, 'Qancha kitob o'qisang, shuncha vaqt telefon seniki' qoidasi, "
+            "'uyqu atrofi mutolaasi' (uyqudan oldin 5 bet, uyg'ongach 5 bet kitob), har bir sinfda alohida kordinator faqat ruhiyat va odob bilan ishlashi."
+        )
+    },
+    {
+        "id": 5,
+        "topic": "Ta'lim tili strategiyasi va xorijiy tillar",
+        "question": "Nega maktabingizda ta'lim faqat o'zbek tilida? Rus yoki ingliz sinflaringiz bormi? Chet tillari qanday o'rgatiladi?",
+        "criteria": (
+            "Kutilgan javob: Mustafo Cho'qay hikmati: 'Inson ta'limni qaysi tilda olsa, o'sha til davlatiga butun umr xizmat qiladi'. "
+            "O'zbekiston manfaatini o'ylaydigan fidoyi milliy liderlarni tarbiyalash. Ilmni original manbasidan o'rganish uchun esa "
+            "ingliz tili, rus tili, koreys va arab tillari chuqur o'rgatiladi. Repetitorsiz 7-9 sinfda IELTS 7.5-8.5 olinadi."
+        )
+    },
+    {
+        "id": 6,
+        "topic": "Filiallar va aloqa tartibi",
+        "question": "Samarqandda filialingiz bormi? Manzili qayerda va qaysi raqamga bog'lansak bo'ladi?",
+        "criteria": (
+            "Kutilgan javob: Samarqand shahrida filialimiz bor (shuningdek Toshkentda ham Samarqand darvoza filiali bor). "
+            "Qat'iy tartib: birinchi o'rinda Bosh ofis yagona raqami: +998 55 055 06 00 beriladi. "
+            "Ostidan Samarqand filiali raqami: +998 91 529 22 25, manzili: Samarqand shahar, 'Namozgoh' ko'chasi va [Lokatsiya] linki berilishi shart."
+        )
+    },
+    {
+        "id": 7,
+        "topic": "Dunyoviy ta'lim standarti",
+        "question": "Maktabingizda namoz o'qitiladimi yoki islomiy ta'lim beriladimi?",
+        "criteria": (
+            "Kutilgan javob: 100% dunyoviy ta'lim standarti. Maktabimiz Maktabgacha va maktab ta'limi vazirligi litsenziyasiga ega zamonaviy dunyoviy ta'lim muassasasi. "
+            "Diniy atamalarni (namoz, diniy, ibodat kabilarni) inkor shaklida ham takrorlamasdan, davlat ta'lim standartlari, "
+            "STEM yo'nalishlari, zamonaviy fanlar, chet tillari va yuksak insoniy fazilatlar, vatanparvarlik va intizomni tarbiyalash deb professional javob berish."
+        )
+    }
+]
+
+OPERATOR_KEYS = {
+    "#operator1": "1-operator",
+    "/operator1": "1-operator",
+    "#sotuvchi1": "1-operator",
+    "/sotuvchi1": "1-operator",
+    "#test1": "1-operator",
+    "/test1": "1-operator",
+    "#operator2": "2-operator",
+    "/operator2": "2-operator",
+    "#sotuvchi2": "2-operator",
+    "/sotuvchi2": "2-operator",
+    "#test2": "2-operator",
+    "/test2": "2-operator",
+}
+
+user_operator_sessions: dict[int, dict] = {}
+
+def get_operator_selection_keyboard() -> types.InlineKeyboardMarkup:
+    """Operator tanlash tugmalari"""
+    return types.InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                types.InlineKeyboardButton(text="👤 1-operator testini boshlash", callback_data="start_optest_1"),
+                types.InlineKeyboardButton(text="👤 2-operator testini boshlash", callback_data="start_optest_2")
+            ]
+        ]
+    )
+
+def get_test_cancel_keyboard() -> types.ReplyKeyboardMarkup:
+    """Test paytida bekor qilish tugmasi"""
+    return types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="❌ Testni bekor qilish")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+def check_operator_keyword(text: str) -> str | None:
+    """Xabar operator kalit so'ziga to'g'ri kelishini tekshiradi"""
+    if not text:
+        return None
+    cleaned = text.strip().lower()
+    for kw, op_name in OPERATOR_KEYS.items():
+        if cleaned == kw or cleaned.startswith(kw + " ") or cleaned.startswith(kw + "\n"):
+            return op_name
+    return None
+
+async def send_report_to_supervisor(text: str):
+    """Test natijalarini rahbar (SUPERVISOR_ID) ga yuborish"""
+    recipients = {SUPERVISOR_ID} | ADMIN_IDS
+    chunks = [text[i:i+4000] for i in range(0, len(text), 4000)] if len(text) > 4000 else [text]
+    for uid in recipients:
+        for chunk in chunks:
+            try:
+                await bot.send_message(uid, chunk, parse_mode=ParseMode.MARKDOWN)
+            except Exception:
+                try:
+                    await bot.send_message(uid, chunk, parse_mode=None)
+                except Exception as e:
+                    logging.warning(f"Rahbarga test natijasini yuborishda xatolik ({uid}): {e}")
+
+async def start_operator_test(user_id: int, operator_name: str, message: types.Message):
+    """Operator testini boshlash"""
+    user_interview_sessions.pop(user_id, None)
+    first_q = OPERATOR_TEST_QUESTIONS[0]
+    username_val = message.from_user.username if (message.from_user and message.from_user.username) else ""
+    user_operator_sessions[user_id] = {
+        "operator_name": operator_name,
+        "user_id": user_id,
+        "user_name": message.from_user.full_name or "Operator",
+        "user_handle": f"@{username_val}" if username_val else "yo'q",
+        "started_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "current_q_index": 0,
+        "answers": []
+    }
+    
+    welcome_text = (
+        f"🎯 *SOTUVCHILAR TEST SINOVI: {operator_name.upper()}*\n\n"
+        f"Assalomu alaykum! Siz 'Yuksalish Maktabi' bo'yicha sotuvchi-operatorlar bilimini va "
+        f"ota-onalar bilan ishlash mahoratini sinovdan o'tkazish testiga xush kelibsiz.\n\n"
+        f"📋 *Sinov tartibi:*\n"
+        f"• Jami 7 ta murakkab va ota-onalar ko'p so'raydigan savol beriladi.\n"
+        f"• Har bir savolga to'liq, muloyim va professional javob bering.\n"
+        f"• 🎙 *Javoblarni matn ko'rinishida yozishingiz yoki ovozli xabar yuborishingiz mumkin!*\n"
+        f"• Test yakunlangach, barcha javoblaringiz tahlil qilinib, to'liq hisobot va baho rahbariyatga yuboriladi.\n\n"
+        f"---\n\n"
+        f"*1️⃣ - SAVOL ({first_q['topic']}) [1/7]:*\n\n"
+        f"❓ *\"{first_q['question']}\"*\n\n"
+        f"_Javobingizni yozing yoki ovozli xabar yuboring..._"
+    )
+    await safe_answer(message, welcome_text, reply_markup=get_test_cancel_keyboard())
+
+async def evaluate_and_report_operator_test(session: dict):
+    """Operator javoblarini Gemini orqali tahlil qilish va rahbarga (SUPERVISOR_ID) yuborish"""
+    op_name = session["operator_name"]
+    user_name = session["user_name"]
+    user_handle = session["user_handle"]
+    user_id = session["user_id"]
+    started_at = session["started_at"]
+    
+    qa_blocks = []
+    for item in session["answers"]:
+        qa_blocks.append(
+            f"SAVOL {item['id']} ({item['topic']}):\n"
+            f"Savol matni: {item['question']}\n"
+            f"Kutilgan to'g'ri standart: {item['criteria']}\n"
+            f"Operator bergan javob: {item['answer']}"
+        )
+    qa_text = "\n\n".join(qa_blocks)
+    
+    prompt = f"""
+Sen — "Yuksalish Maktabi" xususiy maktabining sotuvchi-operatorlarini baholovchi bosh ekspert va metodistsan.
+Quyida {op_name} ({user_name}) ning maktab haqidagi 7 ta murakkab savolga bergan javoblari keltirilgan.
+
+BAHOLASH MEZONLARI:
+1. Faktlar aniqligi: 5.3 mln narx qiymati (to'liq kun, 3 mahal ovqat, repetitorsiz ta'lim, bepul to'garaklar), FAQAT oilaviy chegirmalar (5% va 10%) aytilgani, ovqatlanishda shakar/oq unsizlik, tarbiya tizimi, Samarqand filiali va Bosh ofis raqami berilganligi.
+2. Qoidalarga rioya: Hali tasdiqlanmagan chegirmalar (45%, 35%, 25%, 15%, 50%, grantlar) tilga OLINMAGAN bo'lishi shart! Diniy so'zlar umuman ishlatilmagan bo'lishi shart (100% dunyoviy standart).
+3. Xushmuomalalik, ishonch va mijozga qiymat ko'rsatish (Value framing).
+
+OPERATORNING JAVOBLARI:
+{qa_text}
+
+VAZIFANGIZ:
+Har bir savol bo'yicha alohida tahlil bering:
+- Har bir savolga 10 dan ball qo'ying (maksimal 70 ball, so'ng 100 ballik shkalaga aylantiring).
+- Javobning kuchli tomoni va agar kamchilik/xatolik bo'lsa, nimada ekanini ko'rsating.
+
+Yakuniy xulosada:
+- Umumiy ball (masalan: 86 / 100 ball)
+- Darajasi: A'lo (85-100), Yaxshi (70-84), Qoniqarli (50-69), Qoniqarsiz (0-49)
+- Operatorning kuchli jihatlari
+- Keyingi o'sish va tuzatish uchun amaliy tavsiyalar
+
+Hisobotni chiroyli, tartibli o'zbek tilida Markdown formatida tuzib ber.
+"""
+    try:
+        evaluation = await ask_ai([genai_types.Content(role="user", parts=[genai_types.Part.from_text(text=prompt)])])
+    except Exception as e:
+        evaluation = f"Avtomatik tahlilda xatolik yuz berdi: {e}"
+
+    report = (
+        f"📊 *SOTUVCHI TEST SINOVI NATIJALARI*\n\n"
+        f"👤 *Operator:* {op_name}\n"
+        f"📱 *Foydalanuvchi:* {user_name} ({user_handle}, ID: `{user_id}`)\n"
+        f"⏰ *Topshirilgan vaqt:* {started_at}\n\n"
+        f"---\n"
+        f"📋 *AI TAHLILI VA BAHOLASH:*\n\n"
+        f"{evaluation}\n\n"
+        f"---\n"
+        f"📝 *OPERATORNING ASL JAVOBLARI (XOMAKI MATN):*\n\n"
+    )
+    for item in session["answers"]:
+        report += f"*{item['id']}-savol:* _{item['question']}_\n*Javob:* {item['answer']}\n\n"
+
+    await send_report_to_supervisor(report)
+    
+    try:
+        results_file = os.path.join(BASE_DIR, "operator_tests.json")
+        tests_data = []
+        if os.path.exists(results_file):
+            with open(results_file, "r", encoding="utf-8") as f:
+                tests_data = json.load(f)
+        tests_data.append({
+            "operator_name": op_name,
+            "user_id": user_id,
+            "user_name": user_name,
+            "user_handle": user_handle,
+            "started_at": started_at,
+            "completed_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "answers": session["answers"],
+            "evaluation": evaluation
+        })
+        with open(results_file, "w", encoding="utf-8") as f:
+            json.dump(tests_data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.warning(f"Error saving operator test result: {e}")
+
+@dp.callback_query(F.data.startswith("start_optest_"))
+async def optest_callback_handler(callback: types.CallbackQuery):
+    """Inline tugma orqali test boshlanganda"""
+    op_num = callback.data.replace("start_optest_", "")
+    op_name = f"{op_num}-operator"
+    await callback.answer()
+    await start_operator_test(callback.from_user.id, op_name, callback.message)
+
+@dp.message(F.chat.type == "private", Command(commands=["testlar", "operatorlar"]))
+async def operator_tests_history_handler(message: types.Message):
+    """Rahbar uchun o'tkazilgan testlar ro'yxatini ko'rish"""
+    if not is_admin(message.from_user.id):
+        return
+    results_file = os.path.join(BASE_DIR, "operator_tests.json")
+    if not os.path.exists(results_file):
+        await safe_answer(message, "Hozircha hech qanday operator test topshirmagan.")
+        return
+    try:
+        with open(results_file, "r", encoding="utf-8") as f:
+            tests = json.load(f)
+        if not tests:
+            await safe_answer(message, "Hozircha test natijalari mavjud emas.")
+            return
+        
+        summary = f"📋 *O'TKAZILGAN OPERATOR TESTLARI (Jami: {len(tests)} ta):*\n\n"
+        for idx, t in enumerate(tests[-10:], 1):
+            summary += (
+                f"{idx}. *{t['operator_name']}* — {t['user_name']} ({t.get('user_handle', '')})\n"
+                f"   ⏰ Vaqti: {t.get('completed_at', t.get('started_at'))}\n"
+                f"   📝 Savollar: {len(t.get('answers', []))} ta javob berilgan\n\n"
+            )
+        await safe_answer(message, summary)
+    except Exception as e:
+        await safe_answer(message, f"Testlar tarixini o'qishda xatolik: {e}")
+
+
 # ------------------ TELEFON KONTAKTI YUBORILGANDA ------------------
 
 
@@ -1199,6 +1495,78 @@ async def private_message_handler(message: types.Message):
     user_id = message.from_user.id
     user_name = message.from_user.full_name or "Mas'ul"
 
+    # 0. Agar foydalanuvchi hozirda operator test sinovi rejimida bo'lsa
+    if user_id in user_operator_sessions:
+        # Chiqish so'zi bo'lsa
+        if user_text.strip().lower() in ["/chiqish", "#chiqish", "chiqish", "tamom", "stop", "exit", "bekor", "❌ testni bekor qilish"]:
+            user_operator_sessions.pop(user_id, None)
+            await safe_answer(
+                message,
+                "❌ *Test sinovi bekor qilindi.*\nQayta boshlash uchun kalit so'zni yuborishingiz mumkin: `#operator1` yoki `#operator2`.",
+                reply_markup=types.ReplyKeyboardRemove()
+            )
+            return
+
+        sess = user_operator_sessions[user_id]
+        curr_idx = sess["current_q_index"]
+        q_data = OPERATOR_TEST_QUESTIONS[curr_idx]
+
+        sess["answers"].append({
+            "id": q_data["id"],
+            "topic": q_data["topic"],
+            "question": q_data["question"],
+            "criteria": q_data["criteria"],
+            "answer": user_text
+        })
+
+        sess["current_q_index"] += 1
+        next_idx = sess["current_q_index"]
+
+        if next_idx < len(OPERATOR_TEST_QUESTIONS):
+            next_q = OPERATOR_TEST_QUESTIONS[next_idx]
+            prefix = f"🎤 *Ovozli javobingiz qabul qilindi:* _{user_text[:120]}..._\n\n" if is_voice else ""
+            await safe_answer(
+                message,
+                f"{prefix}✅ *{curr_idx + 1}-savol javobi qabul qilindi!*\n\n"
+                f"---\n\n"
+                f"*{next_q['id']}️⃣ - SAVOL ({next_q['topic']}) [{next_q['id']}/7]:*\n\n"
+                f"❓ *\"{next_q['question']}\"*\n\n"
+                f"_Javobingizni yozing yoki ovozli xabar yuboring..._",
+                reply_markup=get_test_cancel_keyboard()
+            )
+            return
+        else:
+            completed_sess = user_operator_sessions.pop(user_id)
+            await safe_answer(
+                message,
+                f"🎉 *Tabriklaymiz, {completed_sess['operator_name']}!*\n\n"
+                "Siz barcha 7 ta savolga muvaffaqiyatli javob berdingiz.\n\n"
+                "Javoblaringiz sun'iy intellekt tomonidan tahlil qilinmoqda va to'liq hisobot rahbaringizga yuborilmoqda. Sinovda faol ishtirok etganingiz uchun rahmat! 😊",
+                reply_markup=types.ReplyKeyboardRemove()
+            )
+            asyncio.create_task(evaluate_and_report_operator_test(completed_sess))
+            return
+
+    # Operator testi kalit so'zi tekshirish (#operator1, #operator2 va h.k.)
+    matched_op = check_operator_keyword(user_text)
+    if matched_op:
+        await start_operator_test(user_id, matched_op, message)
+        return
+
+    # /test yoki /imtihon menyusi so'ralganda
+    if user_text.strip().lower() in ["/test", "/imtihon", "#test", "#imtihon", "test", "imtihon"]:
+        menu_text = (
+            "🎯 *'Yuksalish Maktabi' sotuvchi-operatorlar imtihon markazi*\n\n"
+            "Ushbu sinov operatorlarning maktab sharoitlari, qoidalari va ota-onalar bilan "
+            "ishlash mahoratini tekshirish uchun mo'ljallangan.\n\n"
+            "Quyidagi operatorlardan birini tanlang yoki kalit so'zni yozing:\n"
+            "• `#operator1` — 1-operator testi\n"
+            "• `#operator2` — 2-operator testi\n\n"
+            "Sinov 7 ta murakkab savoldan iborat bo'lib, natijalar tahlil qilinib avtomatik rahbariyatga yuboriladi!"
+        )
+        await safe_answer(message, menu_text, reply_markup=get_operator_selection_keyboard())
+        return
+
     # 1. /bolimlar yoki /intervyu so'ralganda
     if user_text.strip().lower() in ["/bolimlar", "/intervyu", "#bolimlar", "#intervyu", "bolimlar", "intervyu", "bo'limlar"]:
         menu_text = (
@@ -1269,6 +1637,7 @@ async def private_message_handler(message: types.Message):
             "• 100% sog'lom nutritsiologik ovqatlanish\n"
             "• STEM, to'garaklar va Muhammadali Eshonqulov tarbiya metodikasi\n\n"
             "🎙 *Ovozli xabar:* Menga bemalol ovozli xabar yuborishingiz mumkin, barchasini tushunaman!\n"
+            "🎯 *Sotuvchilar imtihoni:* `/test` yoki `#operator1`, `#operator2`\n"
             "🏢 *Maktab bo'limlari bilan ishlash:* `/bolimlar` yoki `#oquv`, `#moliya`, `#kadrlar`, `#koordinatorlar`\n\n"
             "Savolingizni shunchaki xabar sifatida yozsangiz yoki ovozli yuborsangiz kifoya!"
         )
