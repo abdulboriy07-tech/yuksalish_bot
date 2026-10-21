@@ -109,31 +109,37 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
 
     await add_user(user_id=user_id, full_name=full_name, username=username)
 
-    # 2. Standard /start
-    text = (
-        "\"Tez bormoqchi bo'lsang — yolg'iz yur, uzoqqa bormoqchi bo'lsang — jamoa bilan harakatlan\" degan maqol bor edi.\n\n"
-        "Ustozlarimizdan odatlarni shakllantirish foydalarini eshitib, ishtiyoq bilan harakatni boshlaymiz-u, "
-        "lekin ko'p hollarda 2–3 kundan u yog'iga o'ta olmaymiz.\n\n"
-        "O'zgarishni istaganlar ko'p, ammo insonni ushlab turadigan to'g'ri va qulay muhitni topish hozirgi kunda biroz masala.\n\n"
-        "Aynan shu muammoga yechim sifatida \"FOCUS-21\" loyihasini boshlayapmiz.\n\n"
-        "Loyiha doirasida 21 kun davomida ERKAKLAR uchun eng muhim bo'lgan 8 ta odatni birgalikda shakllantiramiz "
-        "hamda 11 ta dolzarb mavzuda maxsus darslar o'tamiz."
+    # 2. Standard /start: refresh bottom reply keyboard (removes old WebApp icon) and send welcome text + inline browser link button
+    await message.answer(
+        "🎯 <b>FOCUS 21</b>",
+        reply_markup=get_main_keyboard(is_admin=is_admin),
+        parse_mode="HTML"
     )
     await message.answer(
-        text,
+        WELCOME_TEXT,
         reply_markup=get_welcome_inline_keyboard(),
         parse_mode="HTML"
     )
 
 
-@router.message(F.text == "ℹ️ Loyiha haqida")
+WELCOME_TEXT = (
+    "\"Tez bormoqchi bo'lsang — yolg'iz yur, uzoqqa bormoqchi bo'lsang — jamoa bilan harakatlan\" degan maqol bor edi.\n\n"
+    "Ustozlarimizdan odatlarni shakllantirish foydalarini eshitib, ishtiyoq bilan harakatni boshlaymiz-u, "
+    "lekin ko'p hollarda 2–3 kundan u yog'iga o'ta olmaymiz.\n\n"
+    "O'zgarishni istaganlar ko'p, ammo insonni ushlab turadigan to'g'ri va qulay muhitni topish hozirgi kunda biroz masala.\n\n"
+    "Aynan shu muammoga yechim sifatida \"FOCUS-21\" loyihasini boshlayapmiz.\n\n"
+    "Loyiha doirasida 21 kun davomida ERKAKLAR uchun eng muhim bo'lgan 8 ta odatni birgalikda shakllantiramiz "
+    "hamda 11 ta dolzarb mavzuda maxsus darslar o'tamiz."
+)
+
+
+@router.message(F.text.in_({"ℹ️ Loyiha haqida", "Loyiha haqida"}))
 async def about_project(message: Message):
-    text = (
-        f"🎯 <b>{html.escape(PROJECT_NAME)} — FOCUS 21</b>\n\n"
-        f"Loyiha dasturi, 21 kunlik odatlar trekeri va sovg'alar to'plami bilan batafsil tanishish hamda ro'yxatdan o'tish uchun rasmiy saytga o'ting:\n\n"
-        f"🌐 <a href=\"{SITE_URL}\">{SITE_URL}</a>"
+    await message.answer(
+        WELCOME_TEXT,
+        reply_markup=get_welcome_inline_keyboard(),
+        parse_mode="HTML"
     )
-    await message.answer(text, reply_markup=get_site_inline_keyboard(), parse_mode="HTML")
 
 
 @router.message(F.text.in_({"👨‍💻 Admin bilan bog'lanish", "📞 Bog'lanish"}))

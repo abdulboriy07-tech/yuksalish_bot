@@ -3,7 +3,6 @@ from aiogram.types import (
     KeyboardButton,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    WebAppInfo
 )
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import SITE_URL, SUPPORT_USERNAME
@@ -12,7 +11,7 @@ from config import SITE_URL, SUPPORT_USERNAME
 def get_main_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
     keyboard = [
         [
-            KeyboardButton(text="ℹ️ Loyiha haqida", web_app=WebAppInfo(url=SITE_URL)),
+            KeyboardButton(text="ℹ️ Loyiha haqida"),
             KeyboardButton(text="👨‍💻 Admin bilan bog'lanish")
         ]
     ]
@@ -29,7 +28,7 @@ def get_welcome_inline_keyboard() -> InlineKeyboardMarkup:
 
 def get_site_inline_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="🌐 Saytga o'tish — FOCUS 21", url=SITE_URL))
+    builder.row(InlineKeyboardButton(text="Loyiha haqida", url=SITE_URL))
     return builder.as_markup()
 
 
