@@ -1,6 +1,6 @@
 import aiosqlite
 from datetime import datetime
-from config import DB_PATH
+from config import DB_PATH, PRIVATE_CHAT_ID
 
 
 async def _ensure_column(db: aiosqlite.Connection, table: str, column: str, col_def: str):
@@ -18,10 +18,14 @@ async def init_db():
                 full_name TEXT,
                 username TEXT,
                 phone TEXT DEFAULT '',
+                pending_tariff_id INTEGER DEFAULT 1,
+                pending_amount INTEGER DEFAULT 690000,
                 joined_at TEXT
             )
         """)
         await _ensure_column(db, "users", "phone", "TEXT DEFAULT ''")
+        await _ensure_column(db, "users", "pending_tariff_id", "INTEGER DEFAULT 1")
+        await _ensure_column(db, "users", "pending_amount", "INTEGER DEFAULT 690000")
 
         await db.execute("""
             CREATE TABLE IF NOT EXISTS tariffs (
@@ -77,13 +81,50 @@ async def init_db():
                 "SUPER40 promokodi bilan 30% chegirma asosida to'liq 21 kunlik dastur."
             )
         )
+
+        # Ensure default private channel ID (-1004496262658) is always seeded in settings
+        default_chat_id = PRIVATE_CHAT_ID or "-1004496262658"
+        await db.execute(
+            "INSERT OR IGNORE INTO settings (key, value) VALUES ('private_chat_id', ?)",
+            (default_chat_id,)
+        )
+        await db.execute(
+            "UPDATE settings SET value = ? WHERE key = 'private_chat_id' AND (value IS NULL OR TRIM(value) = '')",
+            (default_chat_id,)
+        )
+        await db.execute(
+            "INSERT OR IGNORE INTO settings (key, value) VALUES ('private_chat_title', 'Focus Club | Kutuv zali')"
+        )
         await db.commit()
 
 
-async def add_user(user_id: int, full_name: str, username: str | None, phone: str | None = None):
+async def add_user(
+    user_id: int,
+    full_name: str,
+    username: str | None,
+    phone: str | None = None,
+    pending_tariff_id: int | None = None,
+    pending_amount: int | None = None
+):
     async with aiosqlite.connect(DB_PATH) as db:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if phone:
+        t_id = pending_tariff_id if pending_tariff_id is not None else 1
+        amt = pending_amount if pending_amount is not None else 690000
+        if phone and pending_tariff_id is not None:
+            await db.execute(
+                """
+                INSERT INTO users (user_id, full_name, username, phone, pending_tariff_id, pending_amount, joined_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    full_name = excluded.full_name,
+                    username = excluded.username,
+                    phone = excluded.phone,
+                    pending_tariff_id = excluded.pending_tariff_id,
+                    pending_amount = excluded.pending_amount
+                """,
+                (user_id, full_name, username or "", phone.strip(), t_id, amt, now)
+            )
+        elif phone:
             await db.execute(
                 """
                 INSERT INTO users (user_id, full_name, username, phone, joined_at)

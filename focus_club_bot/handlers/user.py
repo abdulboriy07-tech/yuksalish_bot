@@ -68,6 +68,15 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
             amount = 483000 if is_promo else (tariff["price"] if tariff else 690000)
             price_str = f"{amount:,}".replace(",", " ")
 
+            await add_user(
+                user_id=user_id,
+                full_name=final_name,
+                username=username,
+                phone=phone,
+                pending_tariff_id=t_id,
+                pending_amount=amount
+            )
+
             display_name = html.escape(final_name)
             display_phone = html.escape(phone or "Kiritilmagan")
 

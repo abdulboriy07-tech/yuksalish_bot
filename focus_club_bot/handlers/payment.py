@@ -29,9 +29,12 @@ async def _handle_receipt_submission(message: Message, state: FSMContext, bot: B
     data = await state.get_data()
     db_user = await get_user(message.from_user.id)
 
-    tariff_id = data.get("tariff_id") or 1
+    db_tariff_id = db_user["pending_tariff_id"] if db_user and "pending_tariff_id" in db_user.keys() and db_user["pending_tariff_id"] else 1
+    db_amount = db_user["pending_amount"] if db_user and "pending_amount" in db_user.keys() and db_user["pending_amount"] else None
+
+    tariff_id = data.get("tariff_id") or db_tariff_id or 1
     tariff = await get_tariff(tariff_id)
-    amount = data.get("amount") or (tariff["price"] if tariff else 690000)
+    amount = data.get("amount") or db_amount or (tariff["price"] if tariff else 690000)
 
     web_name = data.get("web_name") or (db_user["full_name"] if db_user and db_user["full_name"] else message.from_user.full_name) or "Foydalanuvchi"
     phone = data.get("phone") or (db_user["phone"] if db_user and "phone" in db_user.keys() else "")
@@ -85,7 +88,7 @@ async def _handle_receipt_submission(message: Message, state: FSMContext, bot: B
                     chat_id=admin_id,
                     photo=file_id,
                     caption=admin_caption,
-                    reply_markup=get_admin_order_keyboard(order_id),
+                    reply_markup=get_admin_order_keyboard(order_id, user_id),
                     parse_mode="HTML"
                 )
             else:
@@ -93,7 +96,7 @@ async def _handle_receipt_submission(message: Message, state: FSMContext, bot: B
                     chat_id=admin_id,
                     document=file_id,
                     caption=admin_caption,
-                    reply_markup=get_admin_order_keyboard(order_id),
+                    reply_markup=get_admin_order_keyboard(order_id, user_id),
                     parse_mode="HTML"
                 )
         except Exception as e:
@@ -108,6 +111,26 @@ async def process_receipt_photo(message: Message, state: FSMContext, bot: Bot):
 
 @router.message(PaymentStates.waiting_for_receipt, F.document)
 async def process_receipt_document(message: Message, state: FSMContext, bot: Bot):
+    doc = message.document
+    await _handle_receipt_submission(message, state, bot, doc.file_id, "document")
+
+
+@router.message(F.photo)
+async def process_direct_photo_receipt(message: Message, state: FSMContext, bot: Bot):
+    """Fallback if user sends payment screenshot after state reset or without active state."""
+    current_state = await state.get_state()
+    if current_state and current_state.startswith("AdminStates"):
+        return
+    photo = message.photo[-1]
+    await _handle_receipt_submission(message, state, bot, photo.file_id, "photo")
+
+
+@router.message(F.document)
+async def process_direct_document_receipt(message: Message, state: FSMContext, bot: Bot):
+    """Fallback if user sends PDF/document receipt after state reset or without active state."""
+    current_state = await state.get_state()
+    if current_state and current_state.startswith("AdminStates"):
+        return
     doc = message.document
     await _handle_receipt_submission(message, state, bot, doc.file_id, "document")
 

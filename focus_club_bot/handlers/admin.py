@@ -1,4 +1,5 @@
 import html
+import re
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import (
@@ -44,7 +45,7 @@ def is_admin(user_id: int) -> bool:
 
 async def get_active_private_chat_id() -> str:
     saved_id = await get_setting("private_chat_id", "")
-    return (saved_id or PRIVATE_CHAT_ID or "").strip()
+    return (saved_id or PRIVATE_CHAT_ID or "-1004496262658").strip()
 
 
 @router.message(Command("id"))
@@ -138,13 +139,14 @@ async def show_pending_orders(call: CallbackQuery, bot: Bot):
             f"🗓 Sana: {order['created_at']}"
         )
         r_type = order["receipt_type"] if "receipt_type" in order.keys() else "photo"
+        kb = get_admin_order_keyboard(order["id"], order["user_id"])
         try:
             if r_type == "document":
                 await bot.send_document(
                     chat_id=call.from_user.id,
                     document=order["receipt_file_id"],
                     caption=caption,
-                    reply_markup=get_admin_order_keyboard(order["id"]),
+                    reply_markup=kb,
                     parse_mode="HTML"
                 )
             else:
@@ -152,7 +154,7 @@ async def show_pending_orders(call: CallbackQuery, bot: Bot):
                     chat_id=call.from_user.id,
                     photo=order["receipt_file_id"],
                     caption=caption,
-                    reply_markup=get_admin_order_keyboard(order["id"]),
+                    reply_markup=kb,
                     parse_mode="HTML"
                 )
         except Exception:
@@ -161,13 +163,13 @@ async def show_pending_orders(call: CallbackQuery, bot: Bot):
                     chat_id=call.from_user.id,
                     document=order["receipt_file_id"],
                     caption=caption,
-                    reply_markup=get_admin_order_keyboard(order["id"]),
+                    reply_markup=kb,
                     parse_mode="HTML"
                 )
             except Exception:
                 await call.message.answer(
                     caption,
-                    reply_markup=get_admin_order_keyboard(order["id"]),
+                    reply_markup=kb,
                     parse_mode="HTML"
                 )
 
@@ -184,48 +186,78 @@ async def _update_admin_order_message(call: CallbackQuery, status_badge: str):
         print(f"Error updating admin message: {e}")
 
 
+def _extract_user_id_from_call(call: CallbackQuery) -> int | None:
+    parts = (call.data or "").split(":")
+    if len(parts) >= 3 and parts[2].isdigit():
+        return int(parts[2])
+    raw_text = call.message.caption or call.message.text or ""
+    m = re.search(r"Telegram ID:\s*(\d+)", raw_text)
+    if m:
+        return int(m.group(1))
+    m2 = re.search(r"ID:\s*(\d+)", raw_text)
+    if m2:
+        return int(m2.group(1))
+    return None
+
+
 @router.callback_query(F.data.startswith("admin_approve:"))
 async def approve_order(call: CallbackQuery, bot: Bot):
     if not is_admin(call.from_user.id):
         await call.answer("Ruxsat yo'q!", show_alert=True)
         return
 
-    order_id = int(call.data.split(":")[1])
-    order = await get_order(order_id)
+    parts = call.data.split(":")
+    order_id = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+    order = await get_order(order_id) if order_id else None
 
-    if not order:
-        await call.answer("Buyurtma topilmadi!", show_alert=True)
-        return
-
-    if order["status"] != "pending":
+    if order and order["status"] != "pending":
         await call.answer(f"Ushbu buyurtma allaqachon '{order['status']}' holatida!", show_alert=True)
         return
 
-    await update_order_status(order_id, "approved")
+    user_id = order["user_id"] if order else _extract_user_id_from_call(call)
+    if not user_id:
+        await call.answer("Foydalanuvchi ID topilmadi!", show_alert=True)
+        return
+
+    if order:
+        await update_order_status(order_id, "approved")
     await call.answer("✅ To'lov tasdiqlandi!")
 
-    user_id = order["user_id"]
-    cust_name = order["customer_name"] or order["full_name"] or f"User {user_id}"
-    tariff_name = html.escape(order["tariff_name"] or "🎯 FOCUS 21")
+    cust_name = (order["customer_name"] or order["full_name"]) if order else f"User {user_id}"
+    tariff_name = html.escape((order["tariff_name"] if order and order["tariff_name"] else None) or "🎯 FOCUS 21")
     admin_name = html.escape(call.from_user.full_name or "Admin")
 
-    # Generate a 1-time (single-use, member_limit=1) invite link for the linked private group/channel
+    # Generate a 1-time (single-use, member_limit=1) invite link for the linked private group/channel (-1004496262658)
     private_chat_id = await get_active_private_chat_id()
     invite_url = None
     invite_error = None
 
+    candidate_chats = []
     if private_chat_id:
+        candidate_chats.append(int(private_chat_id) if private_chat_id.lstrip("-").isdigit() else private_chat_id)
+    if -1004496262658 not in candidate_chats and "-1004496262658" not in candidate_chats:
+        candidate_chats.append(-1004496262658)
+
+    for target_chat in candidate_chats:
         try:
-            target_chat = int(private_chat_id) if private_chat_id.lstrip("-").isdigit() else private_chat_id
             invite_obj = await bot.create_chat_invite_link(
                 chat_id=target_chat,
                 name=f"#{order_id} {cust_name}"[:32],
                 member_limit=1
             )
             invite_url = invite_obj.invite_link
-        except Exception as e:
-            invite_error = str(e)
-            print(f"Error creating 1-time invite link for order #{order_id}: {e}")
+            break
+        except Exception:
+            try:
+                invite_obj = await bot.create_chat_invite_link(
+                    chat_id=target_chat,
+                    member_limit=1
+                )
+                invite_url = invite_obj.invite_link
+                break
+            except Exception as e2:
+                invite_error = str(e2)
+                print(f"Error creating 1-time invite link for order #{order_id} on {target_chat}: {e2}")
 
     if invite_url:
         await _update_admin_order_message(
@@ -445,24 +477,25 @@ async def reject_order(call: CallbackQuery, bot: Bot):
         await call.answer("Ruxsat yo'q!", show_alert=True)
         return
 
-    order_id = int(call.data.split(":")[1])
-    order = await get_order(order_id)
+    parts = call.data.split(":")
+    order_id = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+    order = await get_order(order_id) if order_id else None
 
-    if not order:
-        await call.answer("Buyurtma topilmadi!", show_alert=True)
-        return
-
-    if order["status"] != "pending":
+    if order and order["status"] != "pending":
         await call.answer(f"Ushbu buyurtma allaqachon '{order['status']}' holatida!", show_alert=True)
         return
 
-    await update_order_status(order_id, "rejected")
+    user_id = order["user_id"] if order else _extract_user_id_from_call(call)
+    if not user_id:
+        await call.answer("Foydalanuvchi ID topilmadi!", show_alert=True)
+        return
+
+    if order:
+        await update_order_status(order_id, "rejected")
     await call.answer("❌ To'lov rad etildi.")
 
     admin_name = html.escape(call.from_user.full_name or "Admin")
     await _update_admin_order_message(call, f"❌ <b>RAD ETILDI</b> (Admin: {admin_name})")
-
-    user_id = order["user_id"]
     user_text = (
         f"❌ <b>To'lov tasdiqlanmadi</b>\n\n"
         f"🆔 Buyurtma raqamingiz: <b>#{order_id}</b>\n\n"

@@ -45,10 +45,12 @@ def get_cancel_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_admin_order_keyboard(order_id: int) -> InlineKeyboardMarkup:
+def get_admin_order_keyboard(order_id: int, user_id: int = 0) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="✅ Tasdiqlash", callback_data=f"admin_approve:{order_id}")
-    builder.button(text="❌ Rad etish", callback_data=f"admin_reject:{order_id}")
+    approve_cb = f"admin_approve:{order_id}:{user_id}" if user_id else f"admin_approve:{order_id}"
+    reject_cb = f"admin_reject:{order_id}:{user_id}" if user_id else f"admin_reject:{order_id}"
+    builder.button(text="✅ Tasdiqlash", callback_data=approve_cb)
+    builder.button(text="❌ Rad etish", callback_data=reject_cb)
     builder.adjust(2)
     return builder.as_markup()
 
