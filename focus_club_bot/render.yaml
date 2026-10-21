@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: focus-club-bot
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    healthCheckPath: /health
+    envVars:
+      - key: ADMIN_IDS
+        value: "7218435130"
+      - key: CARD_NUMBER
+        value: "9860 3501 4081 2693"
+      - key: CARD_HOLDER
+        value: "Ziyotaliyev.A"
+      - key: SUPPORT_USERNAME
+        value: "@abdulboriy_w"
+      - key: PROJECT_NAME
+        value: "Focus Club"
+      - key: SITE_URL
+        value: "https://focus-21-ten.vercel.app"

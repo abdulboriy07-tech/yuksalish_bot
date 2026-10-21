@@ -1,0 +1,154 @@
+import base64
+import html
+from aiogram import Router, F
+from aiogram.filters import CommandStart, CommandObject
+from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+
+from config import ADMIN_IDS, CARD_NUMBER, CARD_HOLDER, PROJECT_NAME, SUPPORT_USERNAME, SITE_URL
+from database import add_user, get_tariffs, get_tariff
+from keyboards import (
+    get_main_keyboard,
+    get_welcome_inline_keyboard,
+    get_site_inline_keyboard,
+    get_admin_contact_inline_keyboard,
+    get_cancel_keyboard
+)
+from handlers.payment import PaymentStates
+
+router = Router()
+
+
+def decode_start_payload(args: str):
+    """Decode p_<base64url> payload: either phone|name or tariff_id|phone|name"""
+    try:
+        raw_b64 = args[2:]
+        padding = '=' * (-len(raw_b64) % 4)
+        decoded = base64.urlsafe_b64decode(raw_b64 + padding).decode('utf-8', errors='ignore')
+        parts = decoded.split('|')
+        if len(parts) >= 3:
+            tariff_id = int(parts[0]) if parts[0].isdigit() else 1
+            phone = parts[1].strip()
+            name = "|".join(parts[2:]).strip()
+            return tariff_id, phone, name
+        elif len(parts) == 2:
+            phone = parts[0].strip()
+            name = parts[1].strip()
+            return 1, phone, name
+    except Exception as e:
+        print(f"Error decoding start payload: {e}")
+    return None
+
+
+@router.message(CommandStart())
+async def cmd_start(message: Message, state: FSMContext, command: CommandObject = None):
+    await state.clear()
+    user_id = message.from_user.id
+    full_name = message.from_user.full_name or "Foydalanuvchi"
+    username = message.from_user.username
+
+    is_admin = user_id in ADMIN_IDS
+    args = (command.args or "").strip() if command else ""
+
+    # 1. If user came from website "To'lov qilish" button with encoded info (?start=p_...)
+    if args.startswith("p_"):
+        parsed = decode_start_payload(args)
+        if parsed:
+            tariff_id, phone, web_name = parsed
+            final_name = web_name or full_name
+            await add_user(user_id=user_id, full_name=final_name, username=username, phone=phone)
+
+            tariff = await get_tariff(tariff_id)
+            if not tariff:
+                tariffs = await get_tariffs()
+                tariff = tariffs[0] if tariffs else None
+
+            t_id = tariff["id"] if tariff else 1
+            amount = tariff["price"] if tariff else 690000
+            price_str = f"{amount:,}".replace(",", " ")
+
+            display_name = html.escape(final_name)
+            display_phone = html.escape(phone or "Kiritilmagan")
+
+            # Put user directly into waiting_for_receipt state!
+            await state.update_data(
+                tariff_id=t_id,
+                amount=amount,
+                web_name=final_name,
+                phone=phone
+            )
+            await state.set_state(PaymentStates.waiting_for_receipt)
+
+            await message.answer(
+                f"👋 Xush kelibsiz, <b>{display_name}</b>! Saytdan kiritgan ma'lumotlaringiz qabul qilindi.",
+                reply_markup=get_main_keyboard(is_admin=is_admin),
+                parse_mode="HTML"
+            )
+
+            payment_text = (
+                f"📋 <b>Sizning ma'lumotlaringiz:</b>\n"
+                f"👤 <b>Ism-familiya:</b> {display_name}\n"
+                f"📞 <b>Telefon raqam:</b> <code>{display_phone}</code>\n"
+                f"📦 <b>Dastur:</b> FOCUS 21 (21 kunlik to'liq dastur)\n"
+                f"📅 <b>Start:</b> 1-noyabr, 2026\n"
+                f"💰 <b>To'lov summasi:</b> <b>{price_str} so'm</b>\n\n"
+                f"────────────────────\n"
+                f"💳 <b>To'lov uchun karta raqami:</b>\n"
+                f"<code>{CARD_NUMBER}</code>\n"
+                f"👤 <b>Karta egasi:</b> {html.escape(CARD_HOLDER)}\n"
+                f"────────────────────\n\n"
+                f"📸 <b>To'lovni amalga oshirib, to'lov chekini (skrinshot yoki rasm) shu yerga yuboring!</b>\n\n"
+                f"<i>(Karta raqami ustiga bossangiz avtomatik nusxalanadi)</i>"
+            )
+            await message.answer(
+                payment_text,
+                reply_markup=get_cancel_keyboard(),
+                parse_mode="HTML"
+            )
+            return
+
+    await add_user(user_id=user_id, full_name=full_name, username=username)
+    safe_name = html.escape(full_name)
+
+    # 2. Standard /start
+    text = (
+        f"Assalomu alaykum, <b>{safe_name}</b>!\n\n"
+        f"🎯 <b>{html.escape(PROJECT_NAME)} — FOCUS 21</b> rasmiy botiga xush kelibsiz!\n\n"
+        f"🔥 <b>Erkaklar uchun 21 kunlik shaxsiy rivojlanish loyihasi:</b>\n"
+        f"• 📅 <b>Start:</b> 1-noyabr, 2026\n"
+        f"• 🎬 <b>Dastur:</b> 10 ta video dars + 1 ta Offline secret dars\n"
+        f"• 📈 <b>Intizom:</b> 8 ta kunlik odat trekeri va kurator nazorati\n"
+        f"• 🎁 <b>Sovg'alar:</b> Maxsus Sumka, Daftar va Do'ppi (to'liq set)\n"
+        f"• 💰 <b>Ishtirok narxi:</b> <b>690 000 so'm</b>\n\n"
+        f"Loyiha bilan batafsil tanishish va ro'yxatdan o'tish uchun quyidagi <b>«ℹ️ Loyiha haqida»</b> tugmasini bosing 👇"
+    )
+    await message.answer(
+        text,
+        reply_markup=get_main_keyboard(is_admin=is_admin),
+        parse_mode="HTML"
+    )
+    await message.answer(
+        "👇 <b>To'g'ridan-to'g'ri o'tish uchun tugmani bosing:</b>",
+        reply_markup=get_welcome_inline_keyboard(),
+        parse_mode="HTML"
+    )
+
+
+@router.message(F.text == "ℹ️ Loyiha haqida")
+async def about_project(message: Message):
+    text = (
+        f"🎯 <b>{html.escape(PROJECT_NAME)} — FOCUS 21</b>\n\n"
+        f"Loyiha dasturi, 21 kunlik odatlar trekeri va sovg'alar to'plami bilan batafsil tanishish hamda ro'yxatdan o'tish uchun rasmiy saytga o'ting:\n\n"
+        f"🌐 <a href=\"{SITE_URL}\">{SITE_URL}</a>"
+    )
+    await message.answer(text, reply_markup=get_site_inline_keyboard(), parse_mode="HTML")
+
+
+@router.message(F.text.in_({"👨‍💻 Admin bilan bog'lanish", "📞 Bog'lanish"}))
+async def contact_us(message: Message):
+    text = (
+        f"👨‍💻 <b>Admin bilan bog'lanish:</b>\n\n"
+        f"Savollaringiz yoki to'lov bo'yicha murojaatingiz bo'lsa, quyidagi tugma orqali to'g'ridan-to'g'ri adminga yozishingiz mumkin:\n\n"
+        f"👤 Admin: {html.escape(SUPPORT_USERNAME)}"
+    )
+    await message.answer(text, reply_markup=get_admin_contact_inline_keyboard(), parse_mode="HTML")

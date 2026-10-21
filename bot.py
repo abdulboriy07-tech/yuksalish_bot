@@ -1708,21 +1708,51 @@ async def private_message_handler(message: types.Message):
 
 from aiohttp import web, ClientSession, TCPConnector
 
+import sys
+
 async def handle_ping(request):
-    return web.Response(text="Aisha bot is online 24/7! (v2.5)")
+    return web.Response(text="Aisha bot & Focus Club bot are online 24/7! (v2.6)")
 
 async def handle_status(request):
     data = {
         "status": "online",
         "bot": "@yuksalish_maktabi_adminbot",
+        "focus_club_bot": "@focus_club1_bot",
         "primary_model": "gemini-3.8-flash",
         "fallback_model": "gemini-3.5-flash-lite",
         "gemini_active": bool(gemini_client),
         "openai_active": bool(openai_client),
-        "version": "v2.5-keep-alive",
+        "version": "v2.6-focus-club-24-7",
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     return web.json_response(data)
+
+async def supervise_focus_club_bot():
+    """Focus Club (@focus_club1_bot) ni Render konteynerida 24/7 uzluksiz ishlatish."""
+    focus_dir = os.path.join(BASE_DIR, "focus_club_bot")
+    focus_main = os.path.join(focus_dir, "main.py")
+    if not os.path.exists(focus_main):
+        logging.warning("focus_club_bot/main.py topilmadi.")
+        return
+
+    child_env = os.environ.copy()
+    child_env["STANDALONE_SERVER"] = "0"
+    child_env.pop("BOT_TOKEN", None)  # Let focus_club_bot/config.py use its own Focus Club token
+
+    while True:
+        try:
+            logging.info("Focus Club Bot (@focus_club1_bot) Render'da ishga tushirilmoqda...")
+            proc = await asyncio.create_subprocess_exec(
+                sys.executable,
+                "main.py",
+                cwd=focus_dir,
+                env=child_env
+            )
+            rc = await proc.wait()
+            logging.warning(f"Focus Club Bot yakunlandi (code={rc}), 5 soniyada qayta ishga tushadi...")
+        except Exception as e:
+            logging.error(f"Focus Club Bot supervisor xatosi: {e}")
+        await asyncio.sleep(5)
 
 async def keep_alive_ping():
     """Render.com bepul serveri 15 daqiqada uxlab qolmasligi uchun har 8 daqiqada o'zini ping qilib turadi"""
@@ -1762,6 +1792,9 @@ async def main():
 
     # Render uxlab qolmasligi uchun avtomatik ping vazifasini ishga tushirish
     asyncio.create_task(keep_alive_ping())
+
+    # Focus Club (@focus_club1_bot) ni parallel 24/7 ishga tushirish
+    asyncio.create_task(supervise_focus_club_bot())
 
     # Eski webhook va osilib qolgan so'rovlarni tozalash
     await bot.delete_webhook(drop_pending_updates=True)
