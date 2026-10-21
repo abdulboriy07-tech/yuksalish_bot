@@ -113,7 +113,19 @@ async def process_receipt_document(message: Message, state: FSMContext, bot: Bot
 
 
 @router.message(PaymentStates.waiting_for_receipt)
-async def invalid_receipt(message: Message):
+async def invalid_receipt(message: Message, state: FSMContext):
+    if message.text and message.text.strip().upper() == "SUPER40":
+        await state.update_data(tariff_id=2, amount=483000, promo_code="SUPER40")
+        await message.answer(
+            "🎉 <b>SUPER40 promokodi qo'llandi! (30% chegirma)</b>\n\n"
+            "💰 Yangilangan to'lov summasi: <s>690 000</s> <b>483 000 so'm</b>\n"
+            f"💳 Karta: <code>{CARD_NUMBER}</code> ({html.escape(CARD_HOLDER)})\n\n"
+            "📸 Endi to'lov chekini (skrinshot yoki PDF) shu yerga yuboring:",
+            reply_markup=get_cancel_keyboard(),
+            parse_mode="HTML"
+        )
+        return
+
     await message.answer(
         "📸 Iltimos, to'lov chekini <b>rasm (skrinshot)</b> yoki <b>PDF fayl</b> ko'rinishida yuboring.\n"
         "Jarayonni bekor qilish uchun '❌ Bekor qilish' tugmasini bosing.",

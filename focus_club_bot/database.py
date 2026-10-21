@@ -57,7 +57,7 @@ async def init_db():
             )
         """)
 
-        # Ensure only the single FOCUS 21 tariff (690,000 so'm) exists
+        # Ensure the FOCUS 21 base tariff (690,000 so'm) and SUPER40 promo tariff (483,000 so'm, -30%) exist
         await db.execute("DELETE FROM tariffs")
         await db.execute(
             "INSERT INTO tariffs (id, name, price, description) VALUES (?, ?, ?, ?)",
@@ -66,6 +66,15 @@ async def init_db():
                 "🎯 FOCUS 21 — 21 kunlik to'liq dastur",
                 690000,
                 "10 ta video dars, 1 ta Offline secret dars, kurator nazorati, yopiq Telegram guruh va maxsus sovg'alar to'plami (Sumka, Daftar, Do'ppi)."
+            )
+        )
+        await db.execute(
+            "INSERT INTO tariffs (id, name, price, description) VALUES (?, ?, ?, ?)",
+            (
+                2,
+                "🎯 FOCUS 21 — To'liq dastur (Promokod: SUPER40 -30%)",
+                483000,
+                "SUPER40 promokodi bilan 30% chegirma asosida to'liq 21 kunlik dastur."
             )
         )
         await db.commit()

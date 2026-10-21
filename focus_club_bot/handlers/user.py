@@ -63,8 +63,9 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
                 tariffs = await get_tariffs()
                 tariff = tariffs[0] if tariffs else None
 
-            t_id = tariff["id"] if tariff else 1
-            amount = tariff["price"] if tariff else 690000
+            is_promo = (tariff_id == 2)
+            t_id = tariff["id"] if tariff else (2 if is_promo else 1)
+            amount = 483000 if is_promo else (tariff["price"] if tariff else 690000)
             price_str = f"{amount:,}".replace(",", " ")
 
             display_name = html.escape(final_name)
@@ -75,7 +76,8 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
                 tariff_id=t_id,
                 amount=amount,
                 web_name=final_name,
-                phone=phone
+                phone=phone,
+                promo_code="SUPER40" if is_promo else ""
             )
             await state.set_state(PaymentStates.waiting_for_receipt)
 
@@ -85,13 +87,24 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
                 parse_mode="HTML"
             )
 
+            promo_line = (
+                f"🎟 <b>Promokod:</b> <code>SUPER40</code> (30% chegirma qo'llandi)\n"
+                if is_promo else ""
+            )
+            price_line = (
+                f"💰 <b>To'lov summasi:</b> <s>690 000</s> <b>{price_str} so'm</b>\n\n"
+                if is_promo else
+                f"💰 <b>To'lov summasi:</b> <b>{price_str} so'm</b>\n\n"
+            )
+
             payment_text = (
                 f"📋 <b>Sizning ma'lumotlaringiz:</b>\n"
                 f"👤 <b>Ism-familiya:</b> {display_name}\n"
                 f"📞 <b>Telefon raqam:</b> <code>{display_phone}</code>\n"
                 f"📦 <b>Dastur:</b> FOCUS 21 (21 kunlik to'liq dastur)\n"
+                f"{promo_line}"
                 f"📅 <b>Start:</b> 1-noyabr, 2026\n"
-                f"💰 <b>To'lov summasi:</b> <b>{price_str} so'm</b>\n\n"
+                f"{price_line}"
                 f"────────────────────\n"
                 f"💳 <b>To'lov uchun karta raqami:</b>\n"
                 f"<code>{CARD_NUMBER}</code>\n"
