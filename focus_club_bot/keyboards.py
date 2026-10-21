@@ -22,10 +22,8 @@ def get_main_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
 
 
 def get_welcome_inline_keyboard() -> InlineKeyboardMarkup:
-    admin_url = f"https://t.me/{SUPPORT_USERNAME.lstrip('@')}"
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="ℹ️ Loyiha haqida", url=SITE_URL))
-    builder.row(InlineKeyboardButton(text="👨‍💻 Admin bilan bog'lanish", url=admin_url))
+    builder.row(InlineKeyboardButton(text="Loyiha haqida", url=SITE_URL))
     return builder.as_markup()
 
 

@@ -108,27 +108,19 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
             return
 
     await add_user(user_id=user_id, full_name=full_name, username=username)
-    safe_name = html.escape(full_name)
 
     # 2. Standard /start
     text = (
-        f"Assalomu alaykum, <b>{safe_name}</b>!\n\n"
-        f"🎯 <b>{html.escape(PROJECT_NAME)} — FOCUS 21</b> rasmiy botiga xush kelibsiz!\n\n"
-        f"🔥 <b>Erkaklar uchun 21 kunlik shaxsiy rivojlanish loyihasi:</b>\n"
-        f"• 📅 <b>Start:</b> 1-noyabr, 2026\n"
-        f"• 🎬 <b>Dastur:</b> 10 ta video dars + 1 ta Offline secret dars\n"
-        f"• 📈 <b>Intizom:</b> 8 ta kunlik odat trekeri va kurator nazorati\n"
-        f"• 🎁 <b>Sovg'alar:</b> Maxsus Sumka, Daftar va Do'ppi (to'liq set)\n"
-        f"• 💰 <b>Ishtirok narxi:</b> <b>690 000 so'm</b>\n\n"
-        f"Loyiha bilan batafsil tanishish va ro'yxatdan o'tish uchun quyidagi <b>«ℹ️ Loyiha haqida»</b> tugmasini bosing 👇"
+        "\"Tez bormoqchi bo'lsang — yolg'iz yur, uzoqqa bormoqchi bo'lsang — jamoa bilan harakatlan\" degan maqol bor edi.\n\n"
+        "Ustozlarimizdan odatlarni shakllantirish foydalarini eshitib, ishtiyoq bilan harakatni boshlaymiz-u, "
+        "lekin ko'p hollarda 2–3 kundan u yog'iga o'ta olmaymiz.\n\n"
+        "O'zgarishni istaganlar ko'p, ammo insonni ushlab turadigan to'g'ri va qulay muhitni topish hozirgi kunda biroz masala.\n\n"
+        "Aynan shu muammoga yechim sifatida \"FOCUS-21\" loyihasini boshlayapmiz.\n\n"
+        "Loyiha doirasida 21 kun davomida ERKAKLAR uchun eng muhim bo'lgan 8 ta odatni birgalikda shakllantiramiz "
+        "hamda 11 ta dolzarb mavzuda maxsus darslar o'tamiz."
     )
     await message.answer(
         text,
-        reply_markup=get_main_keyboard(is_admin=is_admin),
-        parse_mode="HTML"
-    )
-    await message.answer(
-        "👇 <b>To'g'ridan-to'g'ri o'tish uchun tugmani bosing:</b>",
         reply_markup=get_welcome_inline_keyboard(),
         parse_mode="HTML"
     )
