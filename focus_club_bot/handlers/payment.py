@@ -1,10 +1,12 @@
+import asyncio
 import html
+from aiohttp import ClientSession, TCPConnector
 from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-from config import ADMIN_IDS, CARD_NUMBER, CARD_HOLDER
+from config import ADMIN_IDS, CARD_NUMBER, CARD_HOLDER, BARK_KEY
 from database import get_tariff, get_user, create_order
 from keyboards import (
     get_cancel_keyboard,
@@ -12,6 +14,26 @@ from keyboards import (
 )
 
 router = Router()
+
+
+async def send_bark_alert(title: str, body: str, url: str = "https://t.me/focus_club1_bot"):
+    if not BARK_KEY:
+        return
+    endpoint = f"https://api.day.app/{BARK_KEY}"
+    payload = {
+        "title": title,
+        "body": body,
+        "sound": "minuet",
+        "group": "FOCUS21_Tolovlar",
+        "url": url,
+        "isArchive": 1
+    }
+    try:
+        async with ClientSession(connector=TCPConnector(ssl=False)) as session:
+            async with session.post(endpoint, json=payload, timeout=8):
+                pass
+    except Exception as e:
+        print(f"Error sending Bark alert: {e}")
 
 
 class PaymentStates(StatesGroup):
@@ -57,6 +79,10 @@ async def _handle_receipt_submission(message: Message, state: FSMContext, bot: B
     safe_phone = html.escape(phone)
     price_str = f"{amount:,}".replace(",", " ")
     phone_line = f"📞 Telefon: <code>{safe_phone}</code>\n" if safe_phone else ""
+
+    # Send instant push notification to admin's iPhone via Bark
+    bark_body = f"👤 {web_name} ({phone or 'Tel yo‘q'})\n💰 Summa: {price_str} so‘m\n🆔 Buyurtma #{order_id}"
+    asyncio.create_task(send_bark_alert("🔔 Yangi to‘lov cheki keldi!", bark_body))
 
     user_confirmation = (
         f"✅ <b>Chekingiz qabul qilindi!</b>\n\n"

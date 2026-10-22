@@ -19,5 +19,6 @@ SUPPORT_USERNAME = os.getenv("SUPPORT_USERNAME", "@abdulboriy_w").strip()
 PROJECT_NAME = os.getenv("PROJECT_NAME", "Focus Club").strip()
 SITE_URL = os.getenv("SITE_URL", "https://focus-21-ten.vercel.app").strip()
 PRIVATE_CHAT_ID = os.getenv("PRIVATE_CHAT_ID", "-1004496262658").strip()
+BARK_KEY = os.getenv("BARK_KEY", "4xqvKe4gqK2MgD4ALyFfMc").strip()
 
 DB_PATH = BASE_DIR / "bot.db"
