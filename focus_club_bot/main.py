@@ -53,18 +53,76 @@ async def handle_status(request):
     })
 
 
-async def start_web_server():
-    """Render Web Service healthcheck va 24/7 port tinglovchi server."""
-    port = int(os.getenv("PORT", "10000"))
+# Global bot reference for Web API handlers
+_bot_ref: Bot = None
+
+
+async def handle_register(request):
+    """Handle website /api/register requests and notify admin via Telegram Bot."""
+    try:
+        data = await request.json()
+        user_name = data.get("userName")
+        user_phone = data.get("userPhone")
+        user_telegram = data.get("userTelegram") or "Kiritilmagan"
+        tariff = data.get("tariff") or "🎯 FOCUS 21 — To'liq dastur"
+
+        if not user_name or not user_phone:
+            return web.json_response({"ok": False, "error": "Ism va telefon raqami talab qilinadi."}, status=400)
+
+        import html
+        from config import ADMIN_IDS
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        msg = (
+            f"🎯 <b>FOCUS 21 — Veb-saytdan yangi ariza!</b>\n\n"
+            f"👤 <b>Ism-familiya:</b> {html.escape(str(user_name))}\n"
+            f"📞 <b>Telefon:</b> <code>{html.escape(str(user_phone))}</code>\n"
+            f"💬 <b>Telegram:</b> {html.escape(str(user_telegram))}\n"
+            f"📦 <b>Tanlangan paket:</b> {html.escape(str(tariff))}\n"
+            f"🕒 <b>Vaqt:</b> {now_str}\n"
+            f"🌐 <b>Server:</b> Hetzner Cloud (178.105.244.3)"
+        )
+
+        if _bot_ref:
+            for admin_id in ADMIN_IDS:
+                try:
+                    await _bot_ref.send_message(
+                        chat_id=admin_id,
+                        text=msg,
+                        parse_mode="HTML"
+                    )
+                except Exception as err:
+                    logger.error(f"Admin {admin_id} ga xabar yuborishda xatolik: {err}")
+
+        return web.json_response({
+            "ok": True,
+            "botUrl": "https://t.me/focus_club1_bot?start=focus21"
+        })
+    except Exception as e:
+        logger.error(f"Register API xatosi: {e}")
+        return web.json_response({
+            "ok": True,
+            "botUrl": "https://t.me/focus_club1_bot?start=focus21"
+        })
+
+
+async def start_web_server(bot: Bot):
+    """24/7 port tinglovchi veb-server va /api/register endpointi."""
+    global _bot_ref
+    _bot_ref = bot
+
+    port = int(os.getenv("PORT", "8000"))
     app = web.Application()
     app.router.add_get("/", handle_ping)
     app.router.add_get("/health", handle_ping)
     app.router.add_get("/status", handle_status)
+    app.router.add_post("/api/register", handle_register)
+
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
-    logger.info(f"Healthcheck veb-server 0.0.0.0:{port} portda ishga tushdi.")
+    logger.info(f"Veb-server va /api/register 0.0.0.0:{port} portda muvaffaqiyatli ishga tushdi.")
 
 
 async def keep_alive_ping():
@@ -90,16 +148,19 @@ async def main():
     logger.info("Ma'lumotlar bazasi initsializatsiya qilinmoqda...")
     await init_db()
 
-    # Start HTTP server for Render healthcheck & keep-alive when running standalone
-    if os.getenv("STANDALONE_SERVER", "1") == "1":
-        await start_web_server()
-        asyncio.create_task(keep_alive_ping())
-
     bot = Bot(
         token=BOT_TOKEN,
         session=UnverifiedSSLSession(),
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
+
+    # Start HTTP server for website /api/register & healthcheck
+    if os.getenv("STANDALONE_SERVER", "1") == "1":
+        await start_web_server(bot)
+        # Faqat Render muhitida keep_alive kerak
+        if os.getenv("RENDER"):
+            asyncio.create_task(keep_alive_ping())
+
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(main_router)
 
