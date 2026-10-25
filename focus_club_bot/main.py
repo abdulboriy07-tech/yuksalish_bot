@@ -168,12 +168,7 @@ async def main():
     logger.info("Bot (@focus_club1_bot) 24/7 rejimida ishga tushdi!")
 
     try:
-        while True:
-            try:
-                await dp.start_polling(bot, drop_pending_updates=True)
-            except Exception as e:
-                logger.error(f"Polling xatosi, 3 soniyada qayta ulanadi: {e}")
-                await asyncio.sleep(3)
+        await dp.start_polling(bot, drop_pending_updates=True)
     finally:
         await bot.session.close()
 
