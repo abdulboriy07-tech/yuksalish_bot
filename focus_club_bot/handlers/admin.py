@@ -226,6 +226,7 @@ async def approve_order(call: CallbackQuery, bot: Bot):
     cust_name = (order["customer_name"] or order["full_name"]) if order else f"User {user_id}"
     tariff_name = html.escape((order["tariff_name"] if order and order["tariff_name"] else None) or "🎯 FOCUS 21")
     admin_name = html.escape(call.from_user.full_name or "Admin")
+    is_booking = bool(order and (order["tariff_id"] == 3 or order["amount"] == 100000))
 
     # Generate a 1-time (single-use, member_limit=1) invite link for the linked private group/channel (-1004496262658)
     private_chat_id = await get_active_private_chat_id()
@@ -270,15 +271,27 @@ async def approve_order(call: CallbackQuery, bot: Bot):
                 [InlineKeyboardButton(text="🔒 Yopiq guruhga qo'shilish (1 martalik)", url=invite_url)]
             ]
         )
-        user_text = (
-            f"🎉 <b>Tabriklaymiz! Sizning to'lovingiz tasdiqlandi!</b>\n\n"
-            f"🆔 Buyurtma: <b>#{order_id}</b>\n"
-            f"📦 Dastur: <b>{tariff_name}</b>\n\n"
-            f"👇 Quyidagi maxsus havola orqali <b>{html.escape(PROJECT_NAME)}</b> yopiq guruhiga/kanaliga qo'shiling:\n"
-            f"🔗 {html.escape(invite_url)}\n\n"
-            f"⚠️ <b>Diqqat:</b> Ushbu havola faqat siz uchun yaratilgan va <b>faqat 1 marta</b> kirish uchun ishlaydi. "
-            f"Guruhga qo'shilganingizdan so'ng havola avtomatik tarzda o'z kuchini yo'qotadi (tugaydi)!"
-        )
+        if is_booking:
+            user_text = (
+                f"🎉 <b>Tabriklaymiz! Sizning to'lovingiz tasdiqlandi va joyingiz band qilindi!</b>\n\n"
+                f"🆔 Buyurtma: <b>#{order_id}</b>\n"
+                f"📦 Dastur: <b>{tariff_name}</b>\n\n"
+                f"👇 Quyidagi maxsus havola orqali <b>{html.escape(PROJECT_NAME)}</b> yopiq kutuv zaliga qo'shiling:\n"
+                f"🔗 {html.escape(invite_url)}\n\n"
+                f"ℹ️ <i>Qolgan to'lovni 1-noyabr startgacha to'lashingiz mumkin.</i>\n\n"
+                f"⚠️ <b>Diqqat:</b> Ushbu havola faqat siz uchun yaratilgan va <b>faqat 1 marta</b> kirish uchun ishlaydi. "
+                f"Guruhga qo'shilganingizdan so'ng havola avtomatik tarzda o'z kuchini yo'qotadi!"
+            )
+        else:
+            user_text = (
+                f"🎉 <b>Tabriklaymiz! Sizning to'lovingiz tasdiqlandi!</b>\n\n"
+                f"🆔 Buyurtma: <b>#{order_id}</b>\n"
+                f"📦 Dastur: <b>{tariff_name}</b>\n\n"
+                f"👇 Quyidagi maxsus havola orqali <b>{html.escape(PROJECT_NAME)}</b> yopiq guruhiga/kanaliga qo'shiling:\n"
+                f"🔗 {html.escape(invite_url)}\n\n"
+                f"⚠️ <b>Diqqat:</b> Ushbu havola faqat siz uchun yaratilgan va <b>faqat 1 marta</b> kirish uchun ishlaydi. "
+                f"Guruhga qo'shilganingizdan so'ng havola avtomatik tarzda o'z kuchini yo'qotadi (tugaydi)!"
+            )
         try:
             await bot.send_message(
                 chat_id=user_id,
@@ -297,13 +310,22 @@ async def approve_order(call: CallbackQuery, bot: Bot):
             call,
             f"✅ <b>TASDIQLANDI</b> (Admin: {admin_name}){warn_note}"
         )
-        user_text = (
-            f"🎉 <b>Xushxabar! Sizning to'lovingiz tasdiqlandi!</b>\n\n"
-            f"🆔 Buyurtma: <b>#{order_id}</b>\n"
-            f"📦 Dastur: <b>{tariff_name}</b>\n\n"
-            f"<b>{html.escape(PROJECT_NAME)}</b> a'zoligingiz muvaffaqiyatli faollashtirildi! 🚀\n"
-            f"Tez orada sizga yopiq guruhga kirish havolasi yuboriladi."
-        )
+        if is_booking:
+            user_text = (
+                f"🎉 <b>Xushxabar! Sizning to'lovingiz tasdiqlandi va joyingiz band qilindi!</b>\n\n"
+                f"🆔 Buyurtma: <b>#{order_id}</b>\n"
+                f"📦 Dastur: <b>{tariff_name}</b>\n\n"
+                f"<b>{html.escape(PROJECT_NAME)}</b> dagi joyingiz muvaffaqiyatli band qilindi! 🚀\n"
+                f"Tez orada sizga yopiq kutuv zaliga kirish havolasi yuboriladi."
+            )
+        else:
+            user_text = (
+                f"🎉 <b>Xushxabar! Sizning to'lovingiz tasdiqlandi!</b>\n\n"
+                f"🆔 Buyurtma: <b>#{order_id}</b>\n"
+                f"📦 Dastur: <b>{tariff_name}</b>\n\n"
+                f"<b>{html.escape(PROJECT_NAME)}</b> a'zoligingiz muvaffaqiyatli faollashtirildi! 🚀\n"
+                f"Tez orada sizga yopiq guruhga kirish havolasi yuboriladi."
+            )
         try:
             await bot.send_message(chat_id=user_id, text=user_text, parse_mode="HTML")
         except Exception as e:

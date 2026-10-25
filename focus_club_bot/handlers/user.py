@@ -2,19 +2,20 @@ import base64
 import html
 from aiogram import Router, F
 from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from config import ADMIN_IDS, CARD_NUMBER, CARD_HOLDER, PROJECT_NAME, SUPPORT_USERNAME, SITE_URL
-from database import add_user, get_tariffs, get_tariff
+from database import add_user, get_tariffs, get_tariff, get_user
 from keyboards import (
     get_main_keyboard,
     get_welcome_inline_keyboard,
     get_site_inline_keyboard,
     get_admin_contact_inline_keyboard,
-    get_cancel_keyboard
+    get_cancel_keyboard,
+    get_phone_request_keyboard
 )
-from handlers.payment import PaymentStates
+from handlers.payment import PaymentStates, send_booking_instructions
 
 router = Router()
 
@@ -172,3 +173,53 @@ async def contact_us(message: Message):
         f"👤 Admin: {html.escape(SUPPORT_USERNAME)}"
     )
     await message.answer(text, reply_markup=get_admin_contact_inline_keyboard(), parse_mode="HTML")
+
+
+@router.callback_query(F.data == "book_spot_100k")
+async def book_spot_callback(call: CallbackQuery, state: FSMContext):
+    await call.answer()
+    user_id = call.from_user.id
+    full_name = call.from_user.full_name or "Foydalanuvchi"
+    user = await get_user(user_id)
+    phone = (user["phone"] if user and "phone" in user.keys() else "") or ""
+
+    if phone:
+        await send_booking_instructions(call.message, state, user_id, user["full_name"] or full_name, phone)
+    else:
+        await state.set_state(PaymentStates.waiting_for_phone)
+        await state.update_data(tariff_id=3, amount=100000, web_name=full_name)
+        prompt_text = (
+            "📌 <b>FOCUS 21 — Joyni band qilish (100 000 so'm)</b>\n\n"
+            "1-noyabr kungi startgacha joyingiz va maxsus narxni band qilib qo'yishingiz mumkin. "
+            "Qolgan to'lovni startgacha to'lashingiz mumkin bo'ladi.\n\n"
+            "📲 Davom etish uchun iltimos, pastdagi tugma orqali <b>telefon raqamingizni yuboring</b> "
+            "yoki raqamingizni xabar sifatida yozib qoldiring:"
+        )
+        await call.message.answer(prompt_text, reply_markup=get_phone_request_keyboard(), parse_mode="HTML")
+
+
+@router.message(F.text.in_({
+    "📌 Joyni band qilish (100 000 so'm)",
+    "Joyni band qilish (100 000 so'm)",
+    "📌 Joyni band qilish",
+    "Joyni band qilish"
+}))
+async def book_spot_message(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    full_name = message.from_user.full_name or "Foydalanuvchi"
+    user = await get_user(user_id)
+    phone = (user["phone"] if user and "phone" in user.keys() else "") or ""
+
+    if phone:
+        await send_booking_instructions(message, state, user_id, user["full_name"] or full_name, phone)
+    else:
+        await state.set_state(PaymentStates.waiting_for_phone)
+        await state.update_data(tariff_id=3, amount=100000, web_name=full_name)
+        prompt_text = (
+            "📌 <b>FOCUS 21 — Joyni band qilish (100 000 so'm)</b>\n\n"
+            "1-noyabr kungi startgacha joyingiz va maxsus narxni band qilib qo'yishingiz mumkin. "
+            "Qolgan to'lovni startgacha to'lashingiz mumkin bo'ladi.\n\n"
+            "📲 Davom etish uchun iltimos, pastdagi tugma orqali <b>telefon raqamingizni yuboring</b> "
+            "yoki raqamingizni xabar sifatida yozib qoldiring:"
+        )
+        await message.answer(prompt_text, reply_markup=get_phone_request_keyboard(), parse_mode="HTML")

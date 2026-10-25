@@ -11,6 +11,9 @@ from config import SITE_URL, SUPPORT_USERNAME
 def get_main_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
     keyboard = [
         [
+            KeyboardButton(text="📌 Joyni band qilish (100 000 so'm)")
+        ],
+        [
             KeyboardButton(text="ℹ️ Loyiha haqida"),
             KeyboardButton(text="👨‍💻 Admin bilan bog'lanish")
         ]
@@ -22,8 +25,20 @@ def get_main_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
 
 def get_welcome_inline_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="Loyiha haqida", url=SITE_URL))
+    builder.row(InlineKeyboardButton(text="📌 Joyni band qilish (100 000 so'm)", callback_data="book_spot_100k"))
+    builder.row(InlineKeyboardButton(text="🌐 Loyiha haqida (Veb-sayt)", url=SITE_URL))
     return builder.as_markup()
+
+
+def get_phone_request_keyboard() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📱 Telefon raqamimni yuborish", request_contact=True)],
+            [KeyboardButton(text="❌ Bekor qilish")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
 
 
 def get_site_inline_keyboard() -> InlineKeyboardMarkup:

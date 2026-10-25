@@ -81,6 +81,15 @@ async def init_db():
                 "SUPER40 promokodi bilan 30% chegirma asosida to'liq 21 kunlik dastur."
             )
         )
+        await db.execute(
+            "INSERT INTO tariffs (id, name, price, description) VALUES (?, ?, ?, ?)",
+            (
+                3,
+                "📌 FOCUS 21 — Joyni band qilish (100 000 so'm)",
+                100000,
+                "100 000 so'm to'lov qilib joyni va narxni 1-noyabrgacha band qilish (qolgan to'lov startgacha to'lanadi)."
+            )
+        )
 
         # Ensure default private channel ID (-1004496262658) is always seeded in settings
         default_chat_id = PRIVATE_CHAT_ID or "-1004496262658"
