@@ -152,7 +152,8 @@ WELCOME_TEXT = (
     "O'zgarishni istaganlar ko'p, ammo insonni ushlab turadigan to'g'ri va qulay muhitni topish hozirgi kunda biroz masala.\n\n"
     "Aynan shu muammoga yechim sifatida \"FOCUS-21\" loyihasini boshlayapmiz.\n\n"
     "Loyiha doirasida 21 kun davomida ERKAKLAR uchun eng muhim bo'lgan 8 ta odatni birgalikda shakllantiramiz "
-    "hamda 11 ta dolzarb mavzuda maxsus darslar o'tamiz."
+    "hamda 11 ta dolzarb mavzuda maxsus darslar o'tamiz.\n\n"
+    "🌐 <b>Rasmiy sayt:</b> https://focus21.uz"
 )
 
 
@@ -173,6 +174,16 @@ async def contact_us(message: Message):
         f"👤 Admin: {html.escape(SUPPORT_USERNAME)}"
     )
     await message.answer(text, reply_markup=get_admin_contact_inline_keyboard(), parse_mode="HTML")
+
+
+@router.message(F.text.in_({"🌐 Rasmiy sayt", "🌐 Veb-sayt", "Sayt", "Veb-sayt", "/site"}))
+async def show_site_link(message: Message):
+    text = (
+        "🌐 <b>FOCUS 21 — Rasmiy veb-sayti:</b>\n\n"
+        "Loyiha haqida to'liq ma'lumot olish va ro'yxatdan o'tish uchun rasmiy saytimizga tashrif buyuring:\n\n"
+        "👉 https://focus21.uz"
+    )
+    await message.answer(text, reply_markup=get_site_inline_keyboard(), parse_mode="HTML")
 
 
 @router.callback_query(F.data == "book_spot_100k")

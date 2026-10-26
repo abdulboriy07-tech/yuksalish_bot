@@ -26,7 +26,7 @@ def get_main_keyboard(is_admin: bool = False) -> ReplyKeyboardMarkup:
 def get_welcome_inline_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="📌 Joyni band qilish (100 000 so'm)", callback_data="book_spot_100k"))
-    builder.row(InlineKeyboardButton(text="🌐 Loyiha haqida (Veb-sayt)", url=SITE_URL))
+    builder.row(InlineKeyboardButton(text="🌐 Rasmiy veb-sayt (focus21.uz)", url=SITE_URL))
     return builder.as_markup()
 
 
@@ -43,7 +43,7 @@ def get_phone_request_keyboard() -> ReplyKeyboardMarkup:
 
 def get_site_inline_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="Loyiha haqida", url=SITE_URL))
+    builder.row(InlineKeyboardButton(text="🌐 Rasmiy veb-sayt (focus21.uz)", url=SITE_URL))
     return builder.as_markup()
 
 
