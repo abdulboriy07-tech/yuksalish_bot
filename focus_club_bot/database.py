@@ -19,13 +19,13 @@ async def init_db():
                 username TEXT,
                 phone TEXT DEFAULT '',
                 pending_tariff_id INTEGER DEFAULT 1,
-                pending_amount INTEGER DEFAULT 690000,
+                pending_amount INTEGER DEFAULT 790000,
                 joined_at TEXT
             )
         """)
         await _ensure_column(db, "users", "phone", "TEXT DEFAULT ''")
         await _ensure_column(db, "users", "pending_tariff_id", "INTEGER DEFAULT 1")
-        await _ensure_column(db, "users", "pending_amount", "INTEGER DEFAULT 690000")
+        await _ensure_column(db, "users", "pending_amount", "INTEGER DEFAULT 790000")
 
         await db.execute("""
             CREATE TABLE IF NOT EXISTS tariffs (
@@ -61,14 +61,14 @@ async def init_db():
             )
         """)
 
-        # Ensure the FOCUS 21 base tariff (690,000 so'm) and SUPER40 promo tariff (483,000 so'm, -30%) exist
+        # Ensure the FOCUS 21 base tariff (790,000 so'm) and SUPER40 promo tariff (483,000 so'm, -30%) exist
         await db.execute("DELETE FROM tariffs")
         await db.execute(
             "INSERT INTO tariffs (id, name, price, description) VALUES (?, ?, ?, ?)",
             (
                 1,
                 "🎯 FOCUS 21 — 21 kunlik to'liq dastur",
-                690000,
+                790000,
                 "10 ta video dars, 1 ta Offline secret dars, kurator nazorati, yopiq Telegram guruh va maxsus sovg'alar to'plami (Sumka, Daftar, Do'ppi)."
             )
         )
@@ -118,7 +118,7 @@ async def add_user(
     async with aiosqlite.connect(DB_PATH) as db:
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         t_id = pending_tariff_id if pending_tariff_id is not None else 1
-        amt = pending_amount if pending_amount is not None else 690000
+        amt = pending_amount if pending_amount is not None else 790000
         if phone and pending_tariff_id is not None:
             await db.execute(
                 """

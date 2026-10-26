@@ -132,7 +132,7 @@ async def _handle_receipt_submission(message: Message, state: FSMContext, bot: B
 
     tariff_id = data.get("tariff_id") or db_tariff_id or 1
     tariff = await get_tariff(tariff_id)
-    amount = data.get("amount") or db_amount or (tariff["price"] if tariff else 690000)
+    amount = data.get("amount") or db_amount or (tariff["price"] if tariff else 790000)
 
     web_name = data.get("web_name") or (db_user["full_name"] if db_user and db_user["full_name"] else message.from_user.full_name) or "Foydalanuvchi"
     phone = data.get("phone") or (db_user["phone"] if db_user and "phone" in db_user.keys() else "")
@@ -266,7 +266,7 @@ async def invalid_receipt(message: Message, state: FSMContext):
         await state.update_data(tariff_id=2, amount=483000, promo_code="SUPER40")
         await message.answer(
             "🎉 <b>SUPER40 promokodi qo'llandi! (30% chegirma)</b>\n\n"
-            "💰 Yangilangan to'lov summasi: <s>690 000</s> <b>483 000 so'm</b>\n"
+            "💰 Yangilangan to'lov summasi: <s>790 000</s> <b>483 000 so'm</b>\n"
             f"💳 Karta: <code>{CARD_NUMBER}</code> ({html.escape(CARD_HOLDER)})\n\n"
             "📸 Endi to'lov chekini (skrinshot yoki PDF) shu yerga yuboring:",
             reply_markup=get_cancel_keyboard(),

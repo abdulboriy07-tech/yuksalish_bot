@@ -66,7 +66,7 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
 
             is_promo = (tariff_id == 2)
             t_id = tariff["id"] if tariff else (2 if is_promo else 1)
-            amount = 483000 if is_promo else (tariff["price"] if tariff else 690000)
+            amount = 483000 if is_promo else (tariff["price"] if tariff else 790000)
             price_str = f"{amount:,}".replace(",", " ")
 
             await add_user(
@@ -102,7 +102,7 @@ async def cmd_start(message: Message, state: FSMContext, command: CommandObject 
                 if is_promo else ""
             )
             price_line = (
-                f"💰 <b>To'lov summasi:</b> <s>690 000</s> <b>{price_str} so'm</b>\n\n"
+                f"💰 <b>To'lov summasi:</b> <s>790 000</s> <b>{price_str} so'm</b>\n\n"
                 if is_promo else
                 f"💰 <b>To'lov summasi:</b> <b>{price_str} so'm</b>\n\n"
             )
